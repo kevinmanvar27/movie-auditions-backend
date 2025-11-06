@@ -1,0 +1,90 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    
+    /* Custom Color Palette */
+    --color-primary: #FF6B00;
+    --color-secondary: #F5F5F5;
+    --color-background: #FFFFFF;
+    --color-surface: #FFFFFF;
+    --color-text: #333333;
+    --color-text-secondary: #757575;
+    --color-border: #E0E0E0;
+    --color-success: #4CAF50;
+    --color-error: #F44336;
+    --color-warning: #FF9800;
+    
+    /* Grayscale System */
+    --color-gray-50: #FAFAFA;
+    --color-gray-100: #F5F5F5;
+    --color-gray-200: #EEEEEE;
+    --color-gray-300: #E0E0E0;
+    --color-gray-400: #BDBDBD;
+    --color-gray-500: #9E9E9E;
+    --color-gray-600: #757575;
+    --color-gray-700: #616161;
+    --color-gray-800: #424242;
+    --color-gray-900: #212121;
+}
+
+/* Light Theme (default) */
+:root {
+    --theme-primary: var(--color-primary);
+    --theme-secondary: var(--color-secondary);
+    --theme-background: var(--color-background);
+    --theme-surface: var(--color-surface);
+    --theme-text: var(--color-text);
+    --theme-text-secondary: var(--color-text-secondary);
+    --theme-border: var(--color-border);
+    --theme-success: var(--color-success);
+    --theme-error: var(--color-error);
+    --theme-warning: var(--color-warning);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --theme-primary: var(--color-primary);
+    --theme-secondary: var(--color-gray-800);
+    --theme-background: var(--color-gray-900);
+    --theme-surface: var(--color-gray-800);
+    --theme-text: var(--color-gray-100);
+    --theme-text-secondary: var(--color-gray-400);
+    --theme-border: var(--color-gray-700);
+    --theme-success: var(--color-success);
+    --theme-error: var(--color-error);
+    --theme-warning: var(--color-warning);
+}
+
+/* Utility classes for theme colors */
+.bg-theme-primary { background-color: var(--theme-primary); }
+.bg-theme-secondary { background-color: var(--theme-secondary); }
+.bg-theme-background { background-color: var(--theme-background); }
+.bg-theme-surface { background-color: var(--theme-surface); }
+
+.text-theme-primary { color: var(--theme-primary); }
+.text-theme-secondary { color: var(--theme-secondary); }
+.text-theme-background { color: var(--theme-background); }
+.text-theme-text { color: var(--theme-text); }
+.text-theme-text-secondary { color: var(--theme-text-secondary); }
+.text-theme-success { color: var(--theme-success); }
+.text-theme-error { color: var(--theme-error); }
+.text-theme-warning { color: var(--theme-warning); }
+
+.border-theme-primary { border-color: var(--theme-primary); }
+.border-theme-secondary { border-color: var(--theme-secondary); }
+.border-theme-border { border-color: var(--theme-border); }
+.border-theme-success { border-color: var(--theme-success); }
+.border-theme-error { border-color: var(--theme-error); }
+.border-theme-warning { border-color: var(--theme-warning); }
+
+/* Focus styles */
+.focus\:ring-theme-primary:focus {
+    --tw-ring-color: var(--theme-primary);
+}

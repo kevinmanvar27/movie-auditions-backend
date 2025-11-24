@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table Sorting Test</title>
+    <link href="css/app.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Instrument Sans', sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Table Sorting Test</h1>
+        
+        <table class="sortable">
+            <thead>
+                <tr>
+                    <th data-sortable="true">ID</th>
+                    <th data-sortable="true">Name</th>
+                    <th data-sortable="true">Email</th>
+                    <th data-sortable="true">Role</th>
+                    <th data-sortable="true">Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>3</td>
+                    <td>John Doe</td>
+                    <td>john@example.com</td>
+                    <td>Admin</td>
+                    <td>Active</td>
+                    <td><button>Edit</button> <button>Delete</button></td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>Alice Smith</td>
+                    <td>alice@example.com</td>
+                    <td>User</td>
+                    <td>Inactive</td>
+                    <td><button>Edit</button> <button>Delete</button></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Bob Johnson</td>
+                    <td>bob@example.com</td>
+                    <td>Editor</td>
+                    <td>Active</td>
+                    <td><button>Edit</button> <button>Delete</button></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Carol Williams</td>
+                    <td>carol@example.com</td>
+                    <td>User</td>
+                    <td>Pending</td>
+                    <td><button>Edit</button> <button>Delete</button></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>David Brown</td>
+                    <td>david@example.com</td>
+                    <td>Moderator</td>
+                    <td>Active</td>
+                    <td><button>Edit</button> <button>Delete</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Table sorting functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add sorting functionality to all tables with sortable headers
+            const tables = document.querySelectorAll('table.sortable');
+            
+            tables.forEach(function(table) {
+                const headers = table.querySelectorAll('thead th[data-sortable="true"]');
+                
+                headers.forEach(function(header) {
+                    // Add cursor pointer to indicate sortable columns
+                    header.style.cursor = 'pointer';
+                    
+                    // Add initial sort indicator
+                    const sortIndicator = document.createElement('span');
+                    sortIndicator.className = 'sort-indicator ml-1';
+                    sortIndicator.innerHTML = ' ↕';
+                    header.appendChild(sortIndicator);
+                    
+                    // Add click event for sorting
+                    header.addEventListener('click', function() {
+                        const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+                        const sortKey = header.getAttribute('data-sort-key') || columnIndex;
+                        
+                        // Determine sort direction
+                        let sortDirection = 'asc';
+                        if (header.classList.contains('sort-asc')) {
+                            sortDirection = 'desc';
+                        }
+                        
+                        // Update visual indicators
+                        headers.forEach(function(h) {
+                            h.classList.remove('sort-asc', 'sort-desc');
+                            const indicator = h.querySelector('.sort-indicator');
+                            if (indicator) {
+                                indicator.innerHTML = ' ↕';
+                            }
+                        });
+                        
+                        header.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+                        const currentIndicator = header.querySelector('.sort-indicator');
+                        if (currentIndicator) {
+                            currentIndicator.innerHTML = sortDirection === 'asc' ? ' ↑' : ' ↓';
+                        }
+                        
+                        // Sort the table rows
+                        sortTable(table, columnIndex, sortDirection);
+                    });
+                });
+            });
+            
+            // Sorting function
+            function sortTable(table, columnIndex, direction) {
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr:not(.no-sort)'));
+                
+                rows.sort(function(a, b) {
+                    const aText = a.children[columnIndex].textContent.trim();
+                    const bText = b.children[columnIndex].textContent.trim();
+                    
+                    // Check if content is numeric
+                    const aNum = parseFloat(aText);
+                    const bNum = parseFloat(bText);
+                    
+                    let comparison = 0;
+                    
+                    if (!isNaN(aNum) && !isNaN(bNum)) {
+                        // Numeric comparison
+                        comparison = aNum - bNum;
+                    } else {
+                        // String comparison
+                        comparison = aText.localeCompare(bText);
+                    }
+                    
+                    return direction === 'asc' ? comparison : -comparison;
+                });
+                
+                // Re-append sorted rows
+                rows.forEach(function(row) {
+                    tbody.appendChild(row);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

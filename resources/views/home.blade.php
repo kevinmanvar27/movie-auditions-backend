@@ -19,15 +19,17 @@
                 <p class="text-theme-text mb-6">{{ __('You are logged in!') }}</p>
                 
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 sm:px-6 sm:py-3 bg-theme-primary hover:bg-[#e05e00] text-theme-background font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary text-center">
-                        Go to Admin Dashboard
+                    <a href="{{ route('admin.dashboard') }}">
+                        <x-button variant="primary" size="md" class="w-full sm:w-auto">
+                            Go to Admin Dashboard
+                        </x-button>
                     </a>
                     
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-theme-background hover:bg-theme-secondary border border-theme-border text-theme-text font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                        <x-button type="submit" variant="secondary" size="md" class="w-full sm:w-auto">
                             {{ __('Logout') }}
-                        </button>
+                        </x-button>
                     </form>
                 </div>
             </div>

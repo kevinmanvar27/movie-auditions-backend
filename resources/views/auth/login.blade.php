@@ -43,9 +43,9 @@
                             </a>
                         @endif
 
-                        <button type="submit" class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-theme-primary hover:bg-[#e05e00] text-theme-background font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                        <x-button type="submit" variant="primary" size="md" class="w-full sm:w-auto">
                             {{ __('Login') }}
-                        </button>
+                        </x-button>
                     </div>
                 </form>
 

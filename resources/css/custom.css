@@ -9,6 +9,24 @@
     font-weight: 500;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
+    border: none;
+    outline: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:focus {
+    outline: 2px solid var(--theme-primary);
+    outline-offset: 2px;
 }
 
 .btn-sm {
@@ -27,6 +45,58 @@
     height: 56px;
     padding: 0 32px;
     font-size: 18px;
+}
+
+/* Additional button variants */
+.btn-primary {
+    background-color: var(--theme-primary);
+    color: var(--theme-background);
+}
+
+.btn-primary:hover {
+    background-color: #e05e00;
+}
+
+.btn-secondary {
+    background-color: var(--theme-secondary);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border);
+}
+
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--theme-primary);
+    border: 1px solid var(--theme-primary);
+}
+
+.btn-outline:hover {
+    background-color: var(--theme-primary);
+    color: var(--theme-background);
+}
+
+.btn-danger {
+    background-color: var(--theme-error);
+    color: var(--theme-background);
+}
+
+.btn-danger:hover {
+    background-color: #d32f2f;
+}
+
+.btn:disabled, .btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn:disabled:hover, .btn.disabled:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Input field styles */

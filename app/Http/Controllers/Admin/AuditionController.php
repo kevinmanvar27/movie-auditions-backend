@@ -11,11 +11,39 @@ class AuditionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch all auditions from the database
-        $auditions = \App\Models\Audition::all();
-        return view('admin.auditions.index', compact('auditions'));
+        // Get filter values
+        $movieFilter = $request->input('movie');
+        $statusFilter = $request->input('status');
+        
+        // Build query with filters
+        $query = \App\Models\Audition::with(['movie', 'user']);
+        
+        // Apply movie filter if provided
+        if ($movieFilter) {
+            $query->where('movie_id', $movieFilter);
+        }
+        
+        // Apply status filter if provided
+        if ($statusFilter) {
+            $query->where('status', $statusFilter);
+        }
+        
+        // Fetch auditions based on filters
+        $auditions = $query->get();
+        
+        // Get all movies for filter dropdown
+        $movies = \App\Models\Movie::all();
+        
+        // Define status options
+        $statuses = [
+            'pending' => 'Pending',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected'
+        ];
+        
+        return view('admin.auditions.index', compact('auditions', 'movies', 'statuses', 'movieFilter', 'statusFilter'));
     }
 
     /**

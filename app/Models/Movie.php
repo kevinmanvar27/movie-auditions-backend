@@ -22,6 +22,37 @@ class Movie extends Model
         'release_date' => 'date',
     ];
     
+    protected $appends = ['genre_list'];
+    
+    public function getGenreListAttribute()
+    {
+        if (is_string($this->genre)) {
+            $genres = json_decode($this->genre, true);
+            return is_array($genres) ? $genres : [];
+        }
+        
+        return is_array($this->genre) ? $this->genre : [];
+    }
+    
+    public function setGenreAttribute($value)
+    {
+        if (is_array($value)) {
+            $this->attributes['genre'] = json_encode($value);
+        } else {
+            $this->attributes['genre'] = $value;
+        }
+    }
+    
+    public function getGenreAttribute($value)
+    {
+        if (is_string($value)) {
+            $genres = json_decode($value, true);
+            return is_array($genres) ? $genres : [];
+        }
+        
+        return is_array($value) ? $value : [];
+    }
+    
     public function roles()
     {
         return $this->hasMany(MovieRole::class);

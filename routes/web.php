@@ -56,5 +56,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Settings Routes
     Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
     Route::put('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');
-    Route::put('/settings/password', [App\Http\Controllers\Admin\SettingController::class, 'updatePassword'])->name('admin.settings.update-password');
+    
+    // Profile Routes
+    Route::get('/profile', [App\Http\Controllers\Admin\SettingController::class, 'profile'])->name('admin.profile');
+    Route::put('/profile', [App\Http\Controllers\Admin\SettingController::class, 'updateProfile'])->name('admin.profile.update');
+    Route::put('/profile/password', [App\Http\Controllers\Admin\SettingController::class, 'updateProfilePassword'])->name('admin.profile.update-password');
 });

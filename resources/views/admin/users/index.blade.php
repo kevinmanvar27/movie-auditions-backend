@@ -35,9 +35,9 @@
                 </tr>
             </thead>
             <tbody class="bg-theme-background divide-y divide-theme-border">
-                @forelse($users as $user)
+                @forelse($users as $key => $user)
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $user->id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $key + 1 }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-text">{{ $user->name }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $user->email }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ ucfirst($user->role ?? 'User') }}</td>

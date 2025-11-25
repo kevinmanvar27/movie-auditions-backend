@@ -21,8 +21,51 @@
             </div>
         </div>
 
+        <!-- Filters -->
+        <form method="GET" action="{{ route('admin.movies.index') }}">
+            <div class="bg-theme-surface rounded-lg shadow border border-theme-border p-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="genre" class="block text-sm font-medium text-theme-text">Filter by Genre</label>
+                        <select name="genre" id="genre" class="input-field mt-1 block w-full">
+                            <option value="">All Genres</option>
+                            @foreach($genres as $genre)
+                                <option value="{{ $genre }}" {{ $genreFilter == $genre ? 'selected' : '' }}>{{ $genre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-theme-text">Filter by Status</label>
+                        <select name="status" id="status" class="input-field mt-1 block w-full">
+                            <option value="">All Statuses</option>
+                            @foreach($statuses as $value => $label)
+                                <option value="{{ $value }}" {{ $statusFilter == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-end space-x-2">
+                        <button type="submit" class="btn btn-primary w-full py-2 px-4" data-loading>
+                            <span class="loading-text">Apply Filters</span>
+                            <span class="loading-spinner hidden">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                        
+                        <a href="{{ route('admin.movies.index') }}" class="btn btn-secondary w-full py-2 px-4">
+                            Clear
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+
         <!-- Movies Table -->
-        <table class="min-w-full divide-y divide-theme-border datatable" id="moviesTable">
+        <table class="min-w-full divide-y divide-theme-border datatable mt-4" id="moviesTable">
             <thead class="bg-theme-secondary">
                 <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-theme-text-secondary uppercase tracking-wider">ID</th>
@@ -34,11 +77,11 @@
                 </tr>
             </thead>
             <tbody class="bg-theme-background divide-y divide-theme-border">
-                @forelse($movies as $movie)
+                @forelse($movies as $key => $movie)
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $movie->id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $key + 1 }}</td>
                     <td class="px-6 py-4 text-sm font-medium text-theme-text max-w-xs truncate">{{ $movie->title }}</td>
-                    <td class="px-6 py-4 text-sm text-theme-text max-w-xs truncate">{{ $movie->genre }}</td>
+                    <td class="px-6 py-4 text-sm text-theme-text max-w-xs truncate">{{ is_array($movie->genre) ? implode(', ', $movie->genre) : $movie->genre }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $movie->release_date->format('Y-m-d') }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         @if($movie->status === 'active')
@@ -73,11 +116,11 @@
                 <h3 class="text-lg font-medium text-theme-text">Confirm Deletion</h3>
                 <p class="mt-2 text-theme-text-secondary">Are you sure you want to delete this movie? This action cannot be undone.</p>
                 <div class="mt-6 flex justify-end space-x-3">
-                    <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="button" class="btn btn-secondary px-4 py-2" onclick="closeDeleteModal()">Cancel</button>
                     <form id="deleteForm" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-danger px-4 py-2 ml-2">Delete</button>
                     </form>
                 </div>
             </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
@@ -27,7 +28,6 @@ class SettingController extends Controller
             'site_name' => 'required|string|max:255',
             'site_description' => 'nullable|string',
             'admin_email' => 'required|email',
-            'timezone' => 'required|string',
         ]);
 
         // Save settings to database
@@ -42,10 +42,59 @@ class SettingController extends Controller
     }
 
     /**
-     * Update the user's password.
+     * Display the user profile page.
      */
-    public function updatePassword(Request $request)
+    public function profile()
     {
+        $user = Auth::user();
+        return view('admin.profile', compact('user'));
+    }
+
+    /**
+     * Update the user's profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Validate and update user profile
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'mobile_number' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Handle profile photo upload
+        if ($request->hasFile('profile_photo')) {
+            // Delete old profile photo if exists
+            if ($user->profile_photo) {
+                Storage::delete($user->profile_photo);
+            }
+            
+            // Store new profile photo
+            $path = $request->file('profile_photo')->store('profile_photos', 'public');
+            $validated['profile_photo'] = $path;
+        } else {
+            // Keep existing photo if no new one uploaded
+            unset($validated['profile_photo']);
+        }
+
+        // Update the user
+        $user->update($validated);
+
+        return redirect()->route('admin.profile')->with('success', 'Profile updated successfully!');
+    }
+
+    /**
+     * Update the user's password from profile.
+     */
+    public function updateProfilePassword(Request $request)
+    {
+        $user = Auth::user();
+        
         // Validate password update
         $validated = $request->validate([
             'current_password' => 'required|string',
@@ -53,15 +102,14 @@ class SettingController extends Controller
         ]);
 
         // Check if current password is correct
-        if (!Hash::check($validated['current_password'], Auth::user()->password)) {
+        if (!Hash::check($validated['current_password'], $user->password)) {
             return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
 
         // Update the password
-        $user = Auth::user();
         $user->password = Hash::make($validated['new_password']);
         $user->save();
 
-        return redirect()->back()->with('success', 'Password updated successfully!');
+        return redirect()->route('admin.profile')->with('success', 'Password updated successfully!');
     }
 }

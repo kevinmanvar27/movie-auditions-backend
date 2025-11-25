@@ -14,6 +14,7 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
     @yield('head')
 </head>
@@ -46,8 +47,8 @@
                         
                         <!-- Dropdown menu -->
                         <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-theme-surface rounded-md shadow-lg py-1 border border-theme-border hidden z-50">
-                            <a href="#" class="block px-4 py-2 text-sm text-theme-text hover:bg-theme-secondary">Your Profile</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-theme-text hover:bg-theme-secondary">Settings</a>
+                            <a href="{{ route('admin.profile') }}" class="block px-4 py-2 text-sm text-theme-text hover:bg-theme-secondary">Edit Profile</a>
+                            <a href="{{ route('admin.settings.index') }}" class="block px-4 py-2 text-sm text-theme-text hover:bg-theme-secondary">Settings</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-button type="submit" variant="secondary" size="sm" class="block w-full text-left">
@@ -142,6 +143,7 @@
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script>
         // Sidebar toggle functionality

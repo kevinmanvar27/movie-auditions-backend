@@ -28,8 +28,9 @@
                     <label for="movie_filter" class="block text-sm font-medium text-theme-text">Filter by Movie</label>
                     <select id="movie_filter" class="input-field mt-1 block w-full">
                         <option value="">All Movies</option>
-                        <option value="1">The Adventure Begins</option>
-                        <option value="2">The Mystery</option>
+                        @foreach($movies as $movie)
+                            <option value="{{ $movie->id }}" {{ $movieFilter == $movie->id ? 'selected' : '' }}>{{ $movie->title }}</option>
+                        @endforeach
                     </select>
                 </div>
                 
@@ -37,14 +38,14 @@
                     <label for="status_filter" class="block text-sm font-medium text-theme-text">Filter by Status</label>
                     <select id="status_filter" class="input-field mt-1 block w-full">
                         <option value="">All Statuses</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
+                        @foreach($statuses as $key => $status)
+                            <option value="{{ $key }}" {{ $statusFilter == $key ? 'selected' : '' }}>{{ $status }}</option>
+                        @endforeach
                     </select>
                 </div>
                 
-                <div class="flex items-end">
-                    <button class="btn btn-primary w-full" data-loading>
+                <div class="flex items-end space-x-2">
+                    <button id="applyFilters" class="btn btn-primary w-full py-2 px-4" data-loading>
                         <span class="loading-text">Apply Filters</span>
                         <span class="loading-spinner hidden">
                             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -52,6 +53,10 @@
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                         </span>
+                    </button>
+                    
+                    <button id="clearFilters" class="btn btn-secondary w-full py-2 px-4">
+                        Clear
                     </button>
                 </div>
             </div>
@@ -70,9 +75,9 @@
                 </tr>
             </thead>
             <tbody class="bg-theme-background divide-y divide-theme-border">
-                @forelse($auditions as $audition)
+                @forelse($auditions as $key => $audition)
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $audition->id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $key + 1 }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-text">{{ $audition->applicant_name }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $audition->movie->title ?? 'Unknown Movie' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $audition->audition_date->format('Y-m-d') }}</td>
@@ -119,7 +124,9 @@
             </div>
         </div>
     </div>
+@endsection
 
+@section('scripts')
     <script>
         function confirmDelete(auditionId) {
             const deleteForm = document.getElementById('deleteForm');
@@ -142,6 +149,32 @@
                     // The server will redirect back to the index page with success message
                 });
             }
+            
+            // Handle filter application
+            document.getElementById('applyFilters').addEventListener('click', function() {
+                const movieFilter = document.getElementById('movie_filter').value;
+                const statusFilter = document.getElementById('status_filter').value;
+                
+                // Build query string
+                let queryParams = [];
+                if (movieFilter) queryParams.push(`movie=${encodeURIComponent(movieFilter)}`);
+                if (statusFilter) queryParams.push(`status=${encodeURIComponent(statusFilter)}`);
+                
+                // Construct the URL with query parameters
+                let url = "{{ route('admin.auditions.index') }}";
+                if (queryParams.length > 0) {
+                    url += '?' + queryParams.join('&');
+                }
+                
+                // Redirect to the filtered URL
+                window.location.href = url;
+            });
+            
+            // Handle clear filters
+            document.getElementById('clearFilters').addEventListener('click', function() {
+                // Redirect to the base URL without query parameters
+                window.location.href = "{{ route('admin.auditions.index') }}";
+            });
         });
 
         // Close modal when clicking outside

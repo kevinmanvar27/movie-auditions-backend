@@ -21,7 +21,7 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-theme-text">Genre</label>
-                        <p class="mt-1 text-theme-text-secondary">{{ $movie->genre }}</p>
+                        <p class="mt-1 text-theme-text-secondary">{{ is_array($movie->genre) ? implode(', ', $movie->genre) : $movie->genre }}</p>
                     </div>
                     
                     <div>

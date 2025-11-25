@@ -26,7 +26,29 @@
                     
                     <div>
                         <label for="genre" class="block text-sm font-medium text-theme-text">Genre</label>
-                        <input type="text" name="genre" id="genre" class="input-field mt-1 block w-full" value="{{ old('genre') }}" required>
+                        <select name="genre[]" id="genre" class="input-field mt-1 block w-full" multiple required>
+                            <option value="">Select Genre</option>
+                            <option value="Action" {{ is_array(old('genre')) && in_array('Action', old('genre')) ? 'selected' : '' }}>Action</option>
+                            <option value="Adventure" {{ is_array(old('genre')) && in_array('Adventure', old('genre')) ? 'selected' : '' }}>Adventure</option>
+                            <option value="Animation" {{ is_array(old('genre')) && in_array('Animation', old('genre')) ? 'selected' : '' }}>Animation</option>
+                            <option value="Biography" {{ is_array(old('genre')) && in_array('Biography', old('genre')) ? 'selected' : '' }}>Biography</option>
+                            <option value="Comedy" {{ is_array(old('genre')) && in_array('Comedy', old('genre')) ? 'selected' : '' }}>Comedy</option>
+                            <option value="Crime" {{ is_array(old('genre')) && in_array('Crime', old('genre')) ? 'selected' : '' }}>Crime</option>
+                            <option value="Documentary" {{ is_array(old('genre')) && in_array('Documentary', old('genre')) ? 'selected' : '' }}>Documentary</option>
+                            <option value="Drama" {{ is_array(old('genre')) && in_array('Drama', old('genre')) ? 'selected' : '' }}>Drama</option>
+                            <option value="Family" {{ is_array(old('genre')) && in_array('Family', old('genre')) ? 'selected' : '' }}>Family</option>
+                            <option value="Fantasy" {{ is_array(old('genre')) && in_array('Fantasy', old('genre')) ? 'selected' : '' }}>Fantasy</option>
+                            <option value="History" {{ is_array(old('genre')) && in_array('History', old('genre')) ? 'selected' : '' }}>History</option>
+                            <option value="Horror" {{ is_array(old('genre')) && in_array('Horror', old('genre')) ? 'selected' : '' }}>Horror</option>
+                            <option value="Music" {{ is_array(old('genre')) && in_array('Music', old('genre')) ? 'selected' : '' }}>Music</option>
+                            <option value="Mystery" {{ is_array(old('genre')) && in_array('Mystery', old('genre')) ? 'selected' : '' }}>Mystery</option>
+                            <option value="Romance" {{ is_array(old('genre')) && in_array('Romance', old('genre')) ? 'selected' : '' }}>Romance</option>
+                            <option value="Sci-Fi" {{ is_array(old('genre')) && in_array('Sci-Fi', old('genre')) ? 'selected' : '' }}>Sci-Fi</option>
+                            <option value="Sport" {{ is_array(old('genre')) && in_array('Sport', old('genre')) ? 'selected' : '' }}>Sport</option>
+                            <option value="Thriller" {{ is_array(old('genre')) && in_array('Thriller', old('genre')) ? 'selected' : '' }}>Thriller</option>
+                            <option value="War" {{ is_array(old('genre')) && in_array('War', old('genre')) ? 'selected' : '' }}>War</option>
+                            <option value="Western" {{ is_array(old('genre')) && in_array('Western', old('genre')) ? 'selected' : '' }}>Western</option>
+                        </select>
                         @error('genre')
                             <p class="mt-1 text-sm text-theme-error">{{ $message }}</p>
                         @enderror
@@ -34,7 +56,7 @@
                     
                     <div>
                         <label for="release_date" class="block text-sm font-medium text-theme-text">Release Date</label>
-                        <input type="date" name="release_date" id="release_date" class="input-field mt-1 block w-full" value="{{ old('release_date') }}" required>
+                        <input type="date" name="release_date" id="release_date" class="input-field mt-1 block w-full" value="{{ old('release_date') }}" min="{{ date('Y-m-d') }}" required>
                         @error('release_date')
                             <p class="mt-1 text-sm text-theme-error">{{ $message }}</p>
                         @enderror
@@ -70,6 +92,70 @@
                     @enderror
                 </div>
                 
+                <!-- Character Roles Section -->
+                <div class="mt-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-theme-text">Character Roles</h2>
+                    </div>
+                    
+                    <div id="roles-container">
+                        <!-- Initial role fields -->
+                        <div class="role-fields mb-4 p-4 bg-theme-background rounded-lg border border-theme-border">
+                            <input type="hidden" name="roles[0][deleted]" class="role-deleted" value="0">
+                            <div class="space-y-4">
+                                <!-- First row with Role Type, Gender, Age Range -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-theme-text">Role Type</label>
+                                        <input type="text" name="roles[0][role_type]" class="input-field mt-1 block w-full" placeholder="e.g., Lead, Supporting">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-theme-text">Gender</label>
+                                        <select name="roles[0][gender]" class="input-field mt-1 block w-full">
+                                            <option value="">Select Gender</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                            <option value="None">None</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-theme-text">Age Range</label>
+                                        <input type="text" name="roles[0][age_range]" placeholder="e.g., 23-99" pattern="[0-9]{2}-[0-9]{2}" class="input-field mt-1 block w-full">
+                                    </div>
+                                </div>
+                                
+                                <!-- Second row with Dialogue Sample (Full Width) -->
+                                <div>
+                                    <label class="block text-sm font-medium text-theme-text">Dialogue Sample</label>
+                                    <textarea name="roles[0][dialogue_sample]" rows="2" class="input-field mt-1 block w-full" placeholder="Enter sample dialogue..."></textarea>
+                                </div>
+                                
+                                <!-- Remove button -->
+                                <div class="flex justify-end">
+                                    <button type="button" class="remove-role text-sm text-theme-error hover:text-red-700">
+                                        Remove Role
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Role button -->
+                        <div class="mt-4" id="add-role-container">
+                            <button type="button" id="add-role" class="btn btn-secondary py-2 px-4 text-sm">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Add Role
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="mt-8 flex justify-end space-x-3">
                     <a href="{{ route('admin.movies.index') }}" class="btn btn-secondary py-2 px-4 mt-6 mr-4">Cancel</a>
                     <button type="submit" class="btn btn-primary py-2 px-4 mt-6" data-loading>
@@ -85,4 +171,103 @@
             </form>
         </div>
     </div>
+
+    <!-- JavaScript for dynamic role fields -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2 for genre selection
+            $('#genre').select2({
+                placeholder: 'Select Genre',
+                allowClear: true,
+                width: '100%'
+            });
+            
+            const rolesContainer = document.getElementById('roles-container');
+            let roleIndex = 1;
+            
+            // Function to add event listeners to remove buttons
+            function addRemoveEventListeners() {
+                document.querySelectorAll('.remove-role').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const roleFields = this.closest('.role-fields');
+                        if (document.querySelectorAll('.role-fields').length > 1) {
+                            roleFields.remove();
+                        } else {
+                            // Clear the fields instead of removing if it's the last one
+                            const inputs = roleFields.querySelectorAll('input, select, textarea');
+                            inputs.forEach(input => {
+                                if (input.type === 'checkbox' || input.type === 'radio') {
+                                    input.checked = false;
+                                } else {
+                                    input.value = '';
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            
+            // Add event listener to the initial remove button
+            addRemoveEventListeners();
+            
+            // Add new role fields
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'add-role' || (e.target.closest('#add-role') && e.target.closest('#add-role').id === 'add-role')) {
+                    // Create new role fields with the same structure as the initial one
+                    const roleFields = document.createElement('div');
+                    roleFields.className = 'role-fields mb-4 p-4 bg-theme-background rounded-lg border border-theme-border';
+                    roleFields.innerHTML = `
+                        <input type="hidden" name="roles[${roleIndex}][deleted]" class="role-deleted" value="0">
+                        <div class="space-y-4">
+                            <!-- First row with Role Type, Gender, Age Range -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-theme-text">Role Type</label>
+                                    <input type="text" name="roles[${roleIndex}][role_type]" class="input-field mt-1 block w-full" placeholder="e.g., Lead, Supporting">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-theme-text">Gender</label>
+                                    <select name="roles[${roleIndex}][gender]" class="input-field mt-1 block w-full">
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                        <option value="None">None</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-theme-text">Age Range</label>
+                                    <input type="text" name="roles[${roleIndex}][age_range]" placeholder="e.g., 23-99" pattern="[0-9]{2}-[0-9]{2}" class="input-field mt-1 block w-full">
+                                </div>
+                            </div>
+                            
+                            <!-- Second row with Dialogue Sample (Full Width) -->
+                            <div>
+                                <label class="block text-sm font-medium text-theme-text">Dialogue Sample</label>
+                                <textarea name="roles[${roleIndex}][dialogue_sample]" rows="2" class="input-field mt-1 block w-full" placeholder="Enter sample dialogue..."></textarea>
+                            </div>
+                            
+                            <!-- Remove button -->
+                            <div class="flex justify-end">
+                                <button type="button" class="remove-role text-sm text-theme-error hover:text-red-700">
+                                    Remove Role
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insert the new role fields before the add button container
+                    const addButtonContainer = document.getElementById('add-role-container');
+                    rolesContainer.insertBefore(roleFields, addButtonContainer);
+                    
+                    roleIndex++;
+                    
+                    // Re-add event listeners to all remove buttons
+                    addRemoveEventListeners();
+                }
+            });
+        });
+    </script>
 @endsection

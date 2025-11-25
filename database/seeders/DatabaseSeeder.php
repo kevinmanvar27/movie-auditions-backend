@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // Run the AdminUserSeeder first
         $this->call([
+            RoleSeeder::class,
             AdminUserSeeder::class,
             MovieAuditionUserSeeder::class,
         ]);

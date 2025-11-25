@@ -37,11 +37,12 @@
                     </div>
                     
                     <div>
-                        <label for="role" class="block text-sm font-medium text-theme-text">Role</label>
-                        <select name="role" id="role" class="input-field mt-1 block w-full" required>
+                        <label for="role_id" class="block text-sm font-medium text-theme-text">Role</label>
+                        <select name="role_id" id="role_id" class="input-field mt-1 block w-full" required>
                             <option value="">Select Role</option>
-                            <option value="admin">Admin</option>
-                            <option value="user" selected>User</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     

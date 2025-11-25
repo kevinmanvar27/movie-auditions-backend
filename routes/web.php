@@ -53,6 +53,17 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         'destroy' => 'admin.users.destroy',
     ]);
     
+    // Roles Routes
+    Route::resource('roles', App\Http\Controllers\Admin\RoleController::class)->names([
+        'index' => 'admin.roles.index',
+        'create' => 'admin.roles.create',
+        'store' => 'admin.roles.store',
+        'show' => 'admin.roles.show',
+        'edit' => 'admin.roles.edit',
+        'update' => 'admin.roles.update',
+        'destroy' => 'admin.roles.destroy',
+    ]);
+    
     // Settings Routes
     Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
     Route::put('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');

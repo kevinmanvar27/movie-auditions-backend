@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
 
 class UserController extends Controller
 {
@@ -13,8 +14,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Fetch all users from the database
-        $users = \App\Models\User::all();
+        // Fetch all users from the database with their roles
+        $users = \App\Models\User::with('role')->get();
         return view('admin.users.index', compact('users'));
     }
 
@@ -23,7 +24,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        $roles = Role::all();
+        return view('admin.users.create', compact('roles'));
     }
 
     /**
@@ -36,7 +38,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|in:admin,user',
+            'role_id' => 'required|exists:roles,id',
             'status' => 'required|string|in:active,inactive',
         ]);
 
@@ -54,8 +56,8 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        // Fetch the user from the database
-        $user = \App\Models\User::findOrFail($id);
+        // Fetch the user from the database with their role
+        $user = \App\Models\User::with('role')->findOrFail($id);
         return view('admin.users.show', compact('user'));
     }
 
@@ -64,9 +66,10 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        // Fetch the user from the database
-        $user = \App\Models\User::findOrFail($id);
-        return view('admin.users.edit', compact('user'));
+        // Fetch the user from the database with their role
+        $user = \App\Models\User::with('role')->findOrFail($id);
+        $roles = Role::all();
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
     /**
@@ -78,7 +81,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$id,
-            'role' => 'required|string|in:admin,user',
+            'role_id' => 'required|exists:roles,id',
             'status' => 'required|string|in:active,inactive',
         ]);
 

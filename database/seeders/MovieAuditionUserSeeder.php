@@ -20,17 +20,17 @@ class MovieAuditionUserSeeder extends Seeder
         // Create sample movies
         $movies = [
             [
-                'title' => 'Tiger\'s Revenge',
-                'description' => 'An action thriller about a man seeking justice for his family.',
-                'genre' => 'Action/Thriller',
-                'release_date' => '2025-12-15',
-                'director' => 'Rohit Shetty',
-                'status' => 'upcoming'
+                'title' => 'Action Hero',
+                'description' => 'An intense action movie with spectacular stunts.',
+                'genre' => json_encode(['Action']),
+                'release_date' => '2025-12-01',
+                'director' => 'John Doe',
+                'status' => 'active'
             ],
             [
                 'title' => 'Romantic Dreams',
                 'description' => 'A beautiful love story set in the hills of Switzerland.',
-                'genre' => 'Romance',
+                'genre' => json_encode(['Romance']),
                 'release_date' => '2026-01-20',
                 'director' => 'Karan Johar',
                 'status' => 'upcoming'
@@ -38,7 +38,7 @@ class MovieAuditionUserSeeder extends Seeder
             [
                 'title' => 'The Mystery Case',
                 'description' => 'A detective investigates a series of mysterious deaths.',
-                'genre' => 'Crime/Thriller',
+                'genre' => json_encode(['Crime', 'Thriller']),
                 'release_date' => '2026-02-10',
                 'director' => 'Anurag Kashyap',
                 'status' => 'active'
@@ -46,7 +46,7 @@ class MovieAuditionUserSeeder extends Seeder
             [
                 'title' => 'Comedy Nights',
                 'description' => 'A hilarious comedy about a group of friends.',
-                'genre' => 'Comedy',
+                'genre' => json_encode(['Comedy']),
                 'release_date' => '2026-03-05',
                 'director' => 'Rajkumar Hirani',
                 'status' => 'active'
@@ -54,7 +54,7 @@ class MovieAuditionUserSeeder extends Seeder
             [
                 'title' => 'Historical Epic',
                 'description' => 'An epic tale of ancient kings and kingdoms.',
-                'genre' => 'Drama/History',
+                'genre' => json_encode(['Drama', 'History']),
                 'release_date' => '2026-04-18',
                 'director' => 'Sanjay Leela Bhansali',
                 'status' => 'inactive'
@@ -62,7 +62,7 @@ class MovieAuditionUserSeeder extends Seeder
             [
                 'title' => 'Space Odyssey',
                 'description' => 'A sci-fi adventure in outer space.',
-                'genre' => 'Sci-Fi/Adventure',
+                'genre' => json_encode(['Sci-Fi', 'Adventure']),
                 'release_date' => '2026-05-22',
                 'director' => 'Imtiaz Ali',
                 'status' => 'upcoming'
@@ -100,12 +100,15 @@ class MovieAuditionUserSeeder extends Seeder
         }
 
         // Create sample users with different roles and statuses
+        $adminRole = \App\Models\Role::where('name', 'Admin')->first();
+        $userRole = \App\Models\Role::where('name', 'User')->first();
+        
         $users = [
             [
                 'name' => 'Admin User',
                 'email' => 'admin@example.com',
                 'password' => Hash::make('password123'),
-                'role' => 'admin',
+                'role_id' => $adminRole ? $adminRole->id : 1,
                 'status' => 'active',
                 'email_verified_at' => now()
             ],
@@ -113,7 +116,7 @@ class MovieAuditionUserSeeder extends Seeder
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'password' => Hash::make('password123'),
-                'role' => 'user',
+                'role_id' => $userRole ? $userRole->id : 2,
                 'status' => 'active',
                 'email_verified_at' => now()
             ],
@@ -121,7 +124,7 @@ class MovieAuditionUserSeeder extends Seeder
                 'name' => 'Jane Smith',
                 'email' => 'jane@example.com',
                 'password' => Hash::make('password123'),
-                'role' => 'user',
+                'role_id' => $userRole ? $userRole->id : 2,
                 'status' => 'inactive',
                 'email_verified_at' => now()
             ],
@@ -129,7 +132,7 @@ class MovieAuditionUserSeeder extends Seeder
                 'name' => 'Robert Johnson',
                 'email' => 'robert@example.com',
                 'password' => Hash::make('password123'),
-                'role' => 'user',
+                'role_id' => $userRole ? $userRole->id : 2,
                 'status' => 'active',
                 'email_verified_at' => now()
             ]

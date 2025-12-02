@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Movie;
+use App\Models\Role;
 
 class MovieRoleCreationTest extends TestCase
 {
@@ -14,9 +15,17 @@ class MovieRoleCreationTest extends TestCase
     /** @test */
     public function admin_can_create_movie_with_multiple_roles()
     {
-        // Create an admin user
+        // Create admin role with proper permissions
+        $adminRole = Role::create([
+            'name' => 'Admin',
+            'description' => 'Administrator role',
+            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles', 'manage_settings']
+        ]);
+
+        // Create an admin user with proper role_id
         $admin = User::factory()->create([
-            'role' => 'admin'
+            'role_id' => $adminRole->id,
+            'status' => 'active'
         ]);
 
         // Authenticate as admin
@@ -26,7 +35,7 @@ class MovieRoleCreationTest extends TestCase
         $movieData = [
             'title' => 'Test Movie',
             'description' => 'A test movie description',
-            'genre' => 'Action',
+            'genre' => ['Action'], // Changed from string to array
             'release_date' => '2025-12-25',
             'director' => 'Test Director',
             'status' => 'active',

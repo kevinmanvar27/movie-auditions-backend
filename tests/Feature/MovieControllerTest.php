@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Movie;
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class MovieControllerTest extends TestCase
@@ -16,8 +17,19 @@ class MovieControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Create a user for authentication
-        $this->user = User::factory()->create();
+        
+        // Create admin role with proper permissions
+        $adminRole = Role::create([
+            'name' => 'Admin',
+            'description' => 'Administrator role',
+            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles', 'manage_settings']
+        ]);
+        
+        // Create a user with proper permissions
+        $this->user = User::factory()->create([
+            'role_id' => $adminRole->id,
+            'status' => 'active'
+        ]);
     }
 
     /** @test */
@@ -46,7 +58,7 @@ class MovieControllerTest extends TestCase
         $movieData = [
             'title' => 'Test Movie',
             'description' => 'A test movie description',
-            'genre' => 'Action',
+            'genre' => ['Action'], // Changed from string to array
             'release_date' => '2023-01-01',
             'director' => 'Test Director',
             'status' => 'active',
@@ -90,7 +102,7 @@ class MovieControllerTest extends TestCase
         $updatedData = [
             'title' => 'Updated Movie',
             'description' => 'An updated movie description',
-            'genre' => 'Comedy',
+            'genre' => ['Comedy'], // Changed from string to array
             'release_date' => '2023-12-31',
             'director' => 'Updated Director',
             'status' => 'inactive',

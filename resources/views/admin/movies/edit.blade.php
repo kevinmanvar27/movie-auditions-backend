@@ -126,8 +126,8 @@
                                 </div>
                                 
                                 <!-- Remove button -->
-                                <div class="flex justify-end">
-                                    <button type="button" class="remove-role text-sm text-theme-error hover:text-red-700">
+                                <div class="flex justify-end table-actions">
+                                    <button type="button" class="remove-role text-sm text-theme-error hover:text-red-700 btn-delete">
                                         Remove Role
                                     </button>
                                 </div>
@@ -256,8 +256,8 @@
                             </div>
                             
                             <!-- Remove button -->
-                            <div class="flex justify-end">
-                                <button type="button" class="remove-role text-sm text-theme-error hover:text-red-700">
+                            <div class="flex justify-end table-actions">
+                                <button type="button" class="remove-role text-sm text-theme-error hover:text-red-700 btn-delete">
                                     Remove Role
                                 </button>
                             </div>

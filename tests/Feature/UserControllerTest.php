@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,13 +13,29 @@ class UserControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $adminUser;
+    protected $userRole;
 
     protected function setUp(): void
     {
         parent::setUp();
-        // Create an admin user for authentication
+        
+        // Create roles first
+        $this->userRole = Role::create([
+            'name' => 'User',
+            'description' => 'Basic user role',
+            'permissions' => ['view_movies', 'apply_for_auditions']
+        ]);
+        
+        // Create an admin role with proper permissions
+        $adminRole = Role::create([
+            'name' => 'Admin',
+            'description' => 'Administrator role',
+            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles', 'manage_settings']
+        ]);
+        
+        // Create an admin user for authentication with proper role_id
         $this->adminUser = User::factory()->create([
-            'role' => 'admin',
+            'role_id' => $adminRole->id,
             'status' => 'active'
         ]);
     }
@@ -43,7 +60,7 @@ class UserControllerTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'role' => 'user',
+            'role_id' => $this->userRole->id,
             'status' => 'active',
         ];
 
@@ -58,10 +75,11 @@ class UserControllerTest extends TestCase
     public function it_updates_a_user_with_valid_data()
     {
         $user = User::factory()->create();
+        
         $updatedData = [
             'name' => 'Updated User',
             'email' => 'updated@example.com',
-            'role' => 'admin',
+            'role_id' => $this->userRole->id,
             'status' => 'inactive',
         ];
 

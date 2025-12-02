@@ -90,10 +90,10 @@
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{{ route('admin.auditions.show', $audition->id) }}" class="text-theme-primary hover:text-[#e05e00] mr-3">View</a>
-                        <a href="{{ route('admin.auditions.edit', $audition->id) }}" class="text-theme-primary hover:text-[#e05e00] mr-3">Edit</a>
-                        <button type="button" class="text-theme-error hover:text-red-700" onclick="confirmDelete({{ $audition->id }})">Delete</button>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium table-actions">
+                        <a href="{{ route('admin.auditions.show', $audition->id) }}" class="btn-view mr-2">View</a>
+                        <a href="{{ route('admin.auditions.edit', $audition->id) }}" class="btn-edit mr-2">Edit</a>
+                        <button type="button" class="btn-delete" onclick="confirmDelete({{ $audition->id }})">Delete</button>
                     </td>
                 </tr>
                 @empty

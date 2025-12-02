@@ -20,11 +20,11 @@ class RBACSystemTest extends TestCase
     {
         parent::setUp();
 
-        // Create roles
+        // Create roles with proper permissions
         $this->adminRole = Role::create([
             'name' => 'Admin',
             'description' => 'Administrator role',
-            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions']
+            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles']
         ]);
 
         $this->userRole = Role::create([
@@ -62,7 +62,8 @@ class RBACSystemTest extends TestCase
 
         // Regular users should be redirected or shown an error
         // Depending on how the middleware is implemented
-        $response->assertStatus(200); // Might still access but with limited functionality
+        // With our new permission system, they should be redirected back with an error
+        $response->assertSessionHas('error');
     }
 
     /** @test */

@@ -74,13 +74,16 @@ class User extends Authenticatable
      */
     public function hasPermission($permission)
     {
-        // If the user has a role, check if the role has the permission
-        if ($this->role) {
-            return $this->role->hasPermission($permission);
+        // If the user has a role_id, load the role relationship and check if the role has the permission
+        if ($this->role_id) {
+            $role = $this->role()->first();
+            if ($role) {
+                return $role->hasPermission($permission);
+            }
         }
         
-        // If the user doesn't have a role but has the old role field, check against it
-        if ($this->role) {
+        // If the user doesn't have a role relationship but has the old role field, check against it
+        if ($this->attributes['role'] ?? null) {
             // For backward compatibility, map old roles to permissions
             $rolePermissions = [
                 'admin' => [
@@ -95,7 +98,7 @@ class User extends Authenticatable
                 ]
             ];
             
-            return in_array($permission, $rolePermissions[$this->role] ?? []);
+            return in_array($permission, $rolePermissions[$this->attributes['role']] ?? []);
         }
         
         return false;
@@ -106,10 +109,15 @@ class User extends Authenticatable
      */
     public function hasRole($role)
     {
-        if ($this->role) {
-            return $this->role->name === $role;
+        // If the user has a role_id, load the role relationship and check the role name
+        if ($this->role_id) {
+            $userRole = $this->role()->first();
+            if ($userRole) {
+                return $userRole->name === $role;
+            }
         }
         
-        return $this->role === $role;
+        // Otherwise, check against the old role field
+        return ($this->attributes['role'] ?? null) === $role;
     }
 }

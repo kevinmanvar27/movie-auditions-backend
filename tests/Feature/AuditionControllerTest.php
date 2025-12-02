@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Movie;
 use App\Models\Audition;
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AuditionControllerTest extends TestCase
@@ -18,9 +19,17 @@ class AuditionControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Create an admin user for authentication
+        
+        // Create roles first
+        $adminRole = Role::create([
+            'name' => 'Admin',
+            'description' => 'Administrator role',
+            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles', 'manage_settings']
+        ]);
+        
+        // Create an admin user for authentication with proper role_id
         $this->adminUser = User::factory()->create([
-            'role' => 'admin',
+            'role_id' => $adminRole->id,
             'status' => 'active'
         ]);
         

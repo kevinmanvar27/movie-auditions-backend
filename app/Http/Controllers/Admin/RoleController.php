@@ -63,6 +63,14 @@ class RoleController extends Controller
     }
 
     /**
+     * Display the specified role.
+     */
+    public function show(Role $role)
+    {
+        return view('admin.roles.show', compact('role'));
+    }
+
+    /**
      * Show the form for editing the specified role.
      */
     public function edit(Role $role)

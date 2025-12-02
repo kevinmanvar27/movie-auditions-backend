@@ -12,7 +12,7 @@ class Audition extends Model
     protected $fillable = [
         'user_id',
         'movie_id',
-        'movie_role_id',
+        'role',
         'applicant_name',
         'applicant_email',
         'audition_date',
@@ -36,8 +36,5 @@ class Audition extends Model
         return $this->belongsTo(Movie::class);
     }
     
-    public function role()
-    {
-        return $this->belongsTo(MovieRole::class, 'movie_role_id');
-    }
+    // Removed the role relationship since we're using a string field now
 }

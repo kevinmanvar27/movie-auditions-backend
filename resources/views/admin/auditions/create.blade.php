@@ -15,59 +15,61 @@
             <form method="POST" action="{{ route('admin.auditions.store') }}" class="p-6">
                 @csrf
                 
+                <!-- Hidden field for user_id -->
+                <input type="hidden" name="user_id" value="{{ Auth::id() }}">
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="applicant_name" class="block text-sm font-medium text-theme-text">Applicant Name</label>
-                        <input type="text" name="applicant_name" id="applicant_name" class="input-field mt-1 block w-full" required>
+                        <input type="text" name="applicant_name" id="applicant_name" class="input-field mt-1 block w-full" value="{{ old('applicant_name') }}" required>
                     </div>
                     
                     <div>
                         <label for="applicant_email" class="block text-sm font-medium text-theme-text">Applicant Email</label>
-                        <input type="email" name="applicant_email" id="applicant_email" class="input-field mt-1 block w-full" required>
+                        <input type="email" name="applicant_email" id="applicant_email" class="input-field mt-1 block w-full" value="{{ old('applicant_email') }}" required>
                     </div>
                     
                     <div>
                         <label for="movie_id" class="block text-sm font-medium text-theme-text">Movie</label>
                         <select name="movie_id" id="movie_id" class="input-field mt-1 block w-full" required>
                             <option value="">Select Movie</option>
-                            <option value="1">The Adventure Begins</option>
-                            <option value="2">The Mystery</option>
+                            @foreach(App\Models\Movie::all() as $movie)
+                                <option value="{{ $movie->id }}" {{ old('movie_id') == $movie->id ? 'selected' : '' }}>
+                                    {{ $movie->title }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                     
                     <div>
-                        <label for="movie_role_id" class="block text-sm font-medium text-theme-text">Character Role</label>
-                        <select name="movie_role_id" id="movie_role_id" class="input-field mt-1 block w-full" required>
-                            <option value="">Select Role</option>
-                            <option value="1">Lead Hero</option>
-                            <option value="2">Supporting Character</option>
-                        </select>
+                        <label for="role" class="block text-sm font-medium text-theme-text">Character Role</label>
+                        <input type="text" name="role" id="role" class="input-field mt-1 block w-full" value="{{ old('role') }}" required>
                     </div>
                     
                     <div>
                         <label for="audition_date" class="block text-sm font-medium text-theme-text">Audition Date</label>
-                        <input type="date" name="audition_date" id="audition_date" class="input-field mt-1 block w-full" required>
+                        <input type="date" name="audition_date" id="audition_date" class="input-field mt-1 block w-full" value="{{ old('audition_date') }}" required>
                     </div>
                     
                     <div>
                         <label for="audition_time" class="block text-sm font-medium text-theme-text">Audition Time</label>
-                        <input type="time" name="audition_time" id="audition_time" class="input-field mt-1 block w-full">
+                        <input type="time" name="audition_time" id="audition_time" class="input-field mt-1 block w-full" value="{{ old('audition_time') }}">
                     </div>
                     
                     <div>
                         <label for="status" class="block text-sm font-medium text-theme-text">Status</label>
                         <select name="status" id="status" class="input-field mt-1 block w-full" required>
                             <option value="">Select Status</option>
-                            <option value="pending" selected>Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
+                            <option value="pending" {{ old('status', 'pending') === 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="approved" {{ old('status') === 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="rejected" {{ old('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
                         </select>
                     </div>
                 </div>
                 
                 <div class="mt-6">
                     <label for="notes" class="block text-sm font-medium text-theme-text">Notes</label>
-                    <textarea name="notes" id="notes" rows="4" class="input-field mt-1 block w-full"></textarea>
+                    <textarea name="notes" id="notes" rows="4" class="input-field mt-1 block w-full">{{ old('notes') }}</textarea>
                 </div>
                 
                 <div class="mt-8 flex justify-end space-x-3">

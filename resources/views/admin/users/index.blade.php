@@ -40,7 +40,17 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $key + 1 }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-text">{{ $user->name }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $user->email }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $user->role ? $user->role->name : (ucfirst($user->role ?? 'User')) }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">
+                        @if($user->role && is_object($user->role))
+                            {{ $user->role->name }}
+                        @elseif($user->role_id)
+                            {{ \App\Models\Role::find($user->role_id)?->name ?? 'Unknown Role' }}
+                        @elseif(is_string($user->role))
+                            {{ ucfirst($user->role) }}
+                        @else
+                            {{ ucfirst($user->attributes['role'] ?? 'User') }}
+                        @endif
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         @if($user->status === 'active')
                             <span class="status-badge status-active">Active</span>
@@ -50,6 +60,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $user->created_at->format('Y-m-d') }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium table-actions">
+                        <a href="{{ route('admin.users.show', $user->id) }}" class="btn-view mr-2">View</a>
                         <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-edit mr-2">Edit</a>
                         <button type="button" class="btn-delete" onclick="confirmDelete({{ $user->id }})">Delete</button>
                     </td>

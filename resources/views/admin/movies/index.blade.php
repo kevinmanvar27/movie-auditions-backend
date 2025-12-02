@@ -93,6 +93,7 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium table-actions">
+                        <a href="{{ route('admin.movies.show', $movie->id) }}" class="btn-view mr-2">View</a>
                         <a href="{{ route('admin.movies.edit', $movie->id) }}" class="btn-edit mr-2">Edit</a>
                         <button type="button" class="btn-delete" onclick="confirmDelete({{ $movie->id }})">Delete</button>
                     </td>

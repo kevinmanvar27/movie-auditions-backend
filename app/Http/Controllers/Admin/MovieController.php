@@ -9,6 +9,20 @@ use Illuminate\Support\Facades\Log;
 class MovieController extends Controller
 {
     /**
+     * Ensure character name is set in role data.
+     *
+     * @param array $roleData
+     * @return array
+     */
+    private function ensureCharacterName(array $roleData): array
+    {
+        if (empty($roleData['character_name'])) {
+            $roleData['character_name'] = 'Unnamed Character';
+        }
+        return $roleData;
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -109,10 +123,8 @@ class MovieController extends Controller
                 foreach ($validated['roles'] as $roleData) {
                     // Only save if role data is not empty
                     if (!empty(array_filter($roleData))) {
-                        // Set a default character name since it's required in the database
-                        if (empty($roleData['character_name'])) {
-                            $roleData['character_name'] = 'Unnamed Character';
-                        }
+                        // Ensure character name is set
+                        $roleData = $this->ensureCharacterName($roleData);
                         
                         $role = new \App\Models\MovieRole($roleData);
                         $movie->roles()->save($role);
@@ -200,10 +212,8 @@ class MovieController extends Controller
                     }, ARRAY_FILTER_USE_BOTH);
                     
                     if (!empty($filteredRoleData)) {
-                        // Set a default character name since it's required in the database
-                        if (empty($roleData['character_name'])) {
-                            $roleData['character_name'] = 'Unnamed Character';
-                        }
+                        // Ensure character name is set
+                        $roleData = $this->ensureCharacterName($roleData);
                         
                         if (isset($roleData['id'])) {
                             // Update existing role

@@ -22,8 +22,8 @@
         </div>
 
         <!-- Roles Table -->
-        <div class="bg-theme-surface rounded-lg shadow border border-theme-border overflow-hidden">
-            <table class="min-w-full divide-y divide-theme-border datatable" id="rolesTable">
+        <div class="bg-theme-surface rounded-lg shadow">
+            <table class="min-w-full divide-y divide-theme-border datatable p-2" id="rolesTable">
                 <thead class="bg-theme-secondary">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-theme-text-secondary uppercase tracking-wider">ID</th>
@@ -41,19 +41,20 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-text">{{ $role->name }}</td>
                         <td class="px-6 py-4 text-sm text-theme-text-secondary max-w-xs truncate">{{ $role->description ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm text-theme-text">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-primary bg-opacity-10 text-theme-primary">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-primary bg-opacity-10" style="color: var(--tw-ring-offset-color); padding: 0.50rem 0.50rem;">
                                 {{ count($role->permissions ?? []) }} permissions
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $role->users()->count() }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('admin.roles.edit', $role) }}" class="text-theme-primary hover:text-theme-primary-hover mr-3">Edit</a>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium table-actions flex items-center space-x-2">
+                            <a href="{{ route('admin.roles.show', $role) }}" class="btn-view mr-2">View</a>
+                            <a href="{{ route('admin.roles.edit', $role) }}" class="btn-edit mr-2">Edit</a>
                             @if($role->users()->count() == 0)
-                            <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this role? This action cannot be undone.')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-theme-error hover:text-red-700">Delete</button>
-                            </form>
+                                <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this role? This action cannot be undone.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-delete">Delete</button>
+                                </form>
                             @endif
                         </td>
                     </tr>

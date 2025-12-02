@@ -33,22 +33,26 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate and store the user
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id',
-            'status' => 'required|string|in:active,inactive',
-        ]);
+        try {
+            // Validate and store the user
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8|confirmed',
+                'role_id' => 'required|exists:roles,id',
+                'status' => 'required|string|in:active,inactive',
+            ]);
 
-        // Hash the password before saving
-        $validated['password'] = Hash::make($validated['password']);
-        
-        // Create the user in the database
-        $user = \App\Models\User::create($validated);
+            // Hash the password before saving
+            $validated['password'] = Hash::make($validated['password']);
+            
+            // Create the user in the database
+            $user = \App\Models\User::create($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'User created successfully!');
+            return redirect()->route('admin.users.index')->with('success', 'User created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to create user. Please try again.');
+        }
     }
 
     /**
@@ -77,21 +81,25 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Validate and update the user
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$id,
-            'role_id' => 'required|exists:roles,id',
-            'status' => 'required|string|in:active,inactive',
-        ]);
+        try {
+            // Validate and update the user
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,'.$id,
+                'role_id' => 'required|exists:roles,id',
+                'status' => 'required|string|in:active,inactive',
+            ]);
 
-        // Find the user
-        $user = \App\Models\User::findOrFail($id);
-        
-        // Update the user in the database
-        $user->update($validated);
+            // Find the user
+            $user = \App\Models\User::findOrFail($id);
+            
+            // Update the user in the database
+            $user->update($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'User updated successfully!');
+            return redirect()->route('admin.users.index')->with('success', 'User updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to update user. Please try again.');
+        }
     }
 
     /**

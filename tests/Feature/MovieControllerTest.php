@@ -22,7 +22,7 @@ class MovieControllerTest extends TestCase
         $adminRole = Role::create([
             'name' => 'Admin',
             'description' => 'Administrator role',
-            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles', 'manage_settings']
+            'permissions' => ['manage_users', 'manage_movies', 'manage_roles', 'manage_settings']
         ]);
         
         // Create a user with proper permissions
@@ -59,7 +59,7 @@ class MovieControllerTest extends TestCase
             'title' => 'Test Movie',
             'description' => 'A test movie description',
             'genre' => ['Action'], // Changed from string to array
-            'release_date' => '2023-01-01',
+            'end_date' => '2023-01-01',
             'director' => 'Test Director',
             'status' => 'active',
         ];
@@ -103,7 +103,7 @@ class MovieControllerTest extends TestCase
             'title' => 'Updated Movie',
             'description' => 'An updated movie description',
             'genre' => ['Comedy'], // Changed from string to array
-            'release_date' => '2023-12-31',
+            'end_date' => '2023-12-31',
             'director' => 'Updated Director',
             'status' => 'inactive',
         ];

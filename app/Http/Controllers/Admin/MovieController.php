@@ -5,22 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Models\Audition;
 
 class MovieController extends Controller
 {
-    /**
-     * Ensure character name is set in role data.
-     *
-     * @param array $roleData
-     * @return array
-     */
-    private function ensureCharacterName(array $roleData): array
-    {
-        if (empty($roleData['character_name'])) {
-            $roleData['character_name'] = 'Unnamed Character';
-        }
-        return $roleData;
-    }
 
     /**
      * Display a listing of the resource.
@@ -91,7 +79,7 @@ class MovieController extends Controller
                 'description' => 'nullable|string',
                 'genre' => 'required|array|max:100',
                 'genre.*' => 'string|max:100',
-                'release_date' => 'required|date',
+                'end_date' => 'required|date',
                 'director' => 'required|string|max:100',
                 'status' => 'required|string|in:active,inactive,upcoming',
                 // Role fields validation
@@ -110,7 +98,7 @@ class MovieController extends Controller
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
                 'genre' => json_encode($validated['genre']),
-                'release_date' => $validated['release_date'],
+                'end_date' => $validated['end_date'],
                 'director' => $validated['director'],
                 'status' => $validated['status'],
             ];
@@ -123,9 +111,6 @@ class MovieController extends Controller
                 foreach ($validated['roles'] as $roleData) {
                     // Only save if role data is not empty
                     if (!empty(array_filter($roleData))) {
-                        // Ensure character name is set
-                        $roleData = $this->ensureCharacterName($roleData);
-                        
                         $role = new \App\Models\MovieRole($roleData);
                         $movie->roles()->save($role);
                     }
@@ -145,11 +130,46 @@ class MovieController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         // Fetch the movie from the database
         $movie = \App\Models\Movie::findOrFail($id);
-        return view('admin.movies.show', compact('movie'));
+        
+        // Get the role filter if provided
+        $roleFilter = $request->get('role');
+        
+        // Get the status filter if provided
+        $statusFilter = $request->get('status');
+        
+        // Build the query for auditions
+        $auditionQuery = $movie->auditions()->with('user');
+        
+        // Apply role filter if provided
+        if ($roleFilter) {
+            $auditionQuery->where('role', $roleFilter);
+        }
+        
+        // Apply status filter if provided
+        if ($statusFilter) {
+            $auditionQuery->where('status', $statusFilter);
+        }
+        
+        // Get auditions with pagination
+        $auditions = $auditionQuery->paginate(9); // 9 per page to fit the 3-column grid
+        
+        // Get all unique roles for the filter dropdown
+        $uniqueRoles = $movie->auditions()->pluck('role')->unique()->sort();
+        
+        // Define status options for the filter dropdown
+        $statusOptions = [
+            'pending' => 'Pending',
+            'viewed' => 'Viewed',
+            'shortlisted' => 'Shortlisted',
+            'rejected' => 'Rejected'
+        ];
+        
+        // Pass movie, paginated auditions, filters, and unique values to the view
+        return view('admin.movies.show', compact('movie', 'auditions', 'roleFilter', 'statusFilter', 'uniqueRoles', 'statusOptions'));
     }
 
     /**
@@ -174,7 +194,7 @@ class MovieController extends Controller
                 'description' => 'nullable|string',
                 'genre' => 'required|array|max:100',
                 'genre.*' => 'string|max:100',
-                'release_date' => 'required|date',
+                'end_date' => 'required|date',
                 'director' => 'required|string|max:100',
                 'status' => 'required|string|in:active,inactive,upcoming',
                 // Role fields validation
@@ -193,7 +213,7 @@ class MovieController extends Controller
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
                 'genre' => json_encode($validated['genre']),
-                'release_date' => $validated['release_date'],
+                'end_date' => $validated['end_date'],
                 'director' => $validated['director'],
                 'status' => $validated['status'],
             ]);
@@ -212,9 +232,6 @@ class MovieController extends Controller
                     }, ARRAY_FILTER_USE_BOTH);
                     
                     if (!empty($filteredRoleData)) {
-                        // Ensure character name is set
-                        $roleData = $this->ensureCharacterName($roleData);
-                        
                         if (isset($roleData['id'])) {
                             // Update existing role
                             $processedRoleIds[] = $roleData['id'];
@@ -272,6 +289,47 @@ class MovieController extends Controller
             return redirect()->route('admin.movies.index')->with('success', 'Movie deleted successfully!');
         } catch (\Exception $e) {
             return redirect()->route('admin.movies.index')->with('error', 'Failed to delete movie: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Update the status of an audition.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Audition $audition
+     * @return \Illuminate\Http\Response
+     */
+    public function updateAuditionStatus(Request $request, \App\Models\Audition $audition)
+    {
+        try {
+            // Validate the request
+            $validated = $request->validate([
+                'status' => 'required|in:pending,viewed,shortlisted,rejected'
+            ]);
+            
+            // Update the audition status
+            $audition->status = $validated['status'];
+            $audition->save();
+            
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Audition status updated successfully.',
+                'status' => $audition->status
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            // Return error response
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update audition status: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

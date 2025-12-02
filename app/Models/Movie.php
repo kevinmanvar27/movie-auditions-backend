@@ -13,13 +13,13 @@ class Movie extends Model
         'title',
         'description',
         'genre',
-        'release_date',
+        'end_date',
         'director',
         'status',
     ];
     
     protected $casts = [
-        'release_date' => 'date',
+        'end_date' => 'date',
     ];
     
     protected $appends = ['genre_list'];
@@ -62,4 +62,5 @@ class Movie extends Model
     {
         return $this->hasMany(Audition::class);
     }
+    
 }

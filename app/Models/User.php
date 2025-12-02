@@ -54,14 +54,6 @@ class User extends Authenticatable
     }
     
     /**
-     * Get the auditions for the user.
-     */
-    public function auditions()
-    {
-        return $this->hasMany(Audition::class);
-    }
-    
-    /**
      * Get the role for the user.
      */
     public function role()
@@ -89,12 +81,10 @@ class User extends Authenticatable
                 'admin' => [
                     'manage_users',
                     'manage_movies',
-                    'manage_auditions',
                     'manage_roles'
                 ],
                 'user' => [
-                    'view_movies',
-                    'apply_for_auditions'
+                    'view_movies'
                 ]
             ];
             

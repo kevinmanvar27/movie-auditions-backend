@@ -55,9 +55,9 @@
                     </div>
                     
                     <div>
-                        <label for="release_date" class="block text-sm font-medium text-theme-text">Release Date</label>
-                        <input type="date" name="release_date" id="release_date" class="input-field mt-1 block w-full" value="{{ old('release_date') }}" min="{{ date('Y-m-d') }}" required>
-                        @error('release_date')
+                        <label for="end_date" class="block text-sm font-medium text-theme-text">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="input-field mt-1 block w-full" value="{{ old('end_date') }}" min="{{ date('Y-m-d') }}" required>
+                        @error('end_date')
                             <p class="mt-1 text-sm text-theme-error">{{ $message }}</p>
                         @enderror
                     </div>

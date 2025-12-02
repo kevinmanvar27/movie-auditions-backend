@@ -13,16 +13,19 @@ return new class extends Migration
     {
         Schema::create('auditions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('movie_id')->constrained()->onDelete('cascade');
-            $table->foreignId('movie_role_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('movie_id');
+            $table->string('role');
             $table->string('applicant_name');
-            $table->string('applicant_email');
-            $table->date('audition_date');
-            $table->time('audition_time')->nullable();
+            $table->json('uploaded_videos')->nullable();
+            $table->json('old_video_backups')->nullable();
             $table->text('notes')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string('status')->default('pending');
             $table->timestamps();
+            
+            // Foreign key constraints
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');
         });
     }
 

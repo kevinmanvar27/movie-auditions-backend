@@ -30,13 +30,14 @@
                             
                             <div>
                                 <label for="site_description" class="block text-sm font-medium text-theme-text">Site Description</label>
-                                <textarea name="site_description" id="site_description" rows="3" class="input-field mt-1 block w-full">A platform for managing movie auditions and casting.</textarea>
+                                <textarea name="site_description" id="site_description" rows="3" class="input-field mt-1 block w-full">A platform for managing movies and casting.</textarea>
                             </div>
                             
                             <div>
                                 <label for="admin_email" class="block text-sm font-medium text-theme-text">Admin Email</label>
                                 <input type="email" name="admin_email" id="admin_email" class="input-field mt-1 block w-full" value="admin@example.com" required>
                             </div>
+                            
                         </div>
                         
                         <div class="mt-6">

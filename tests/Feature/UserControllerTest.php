@@ -23,14 +23,14 @@ class UserControllerTest extends TestCase
         $this->userRole = Role::create([
             'name' => 'User',
             'description' => 'Basic user role',
-            'permissions' => ['view_movies', 'apply_for_auditions']
+            'permissions' => ['view_movies']
         ]);
         
         // Create an admin role with proper permissions
         $adminRole = Role::create([
             'name' => 'Admin',
             'description' => 'Administrator role',
-            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles', 'manage_settings']
+            'permissions' => ['manage_users', 'manage_movies', 'manage_roles', 'manage_settings']
         ]);
         
         // Create an admin user for authentication with proper role_id

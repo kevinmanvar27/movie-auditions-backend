@@ -30,7 +30,12 @@ class CheckPermission
             }
         }
         
-        // If no permissions matched, redirect back with error
+        // If no permissions matched, handle differently for AJAX vs regular requests
+        if ($request->expectsJson()) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+        
+        // For regular requests, redirect back with error
         return redirect()->back()->with('error', 'You do not have permission to access this resource.');
     }
 }

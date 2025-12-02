@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             AdminUserSeeder::class,
             MovieAuditionUserSeeder::class,
+            AuditionSeeder::class,
+            SystemSettingsSeeder::class, // Add this line
         ]);
     }
 }

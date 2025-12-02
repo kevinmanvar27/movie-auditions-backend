@@ -47,7 +47,7 @@ class RoleController extends Controller
             'view_reports',
             'manage_settings',
             'view_movies',
-            'apply_for_auditions'
+            'view_dashboard'
         ];
 
         // Filter permissions to only include valid ones
@@ -99,7 +99,7 @@ class RoleController extends Controller
             'view_reports',
             'manage_settings',
             'view_movies',
-            'apply_for_auditions'
+            'view_dashboard'
         ];
 
         // Filter permissions to only include valid ones

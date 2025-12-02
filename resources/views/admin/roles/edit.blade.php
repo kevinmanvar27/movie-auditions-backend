@@ -87,8 +87,8 @@
                                             <span class="ml-2 text-sm text-theme-text">View Movies</span>
                                         </label>
                                         <label class="flex items-center">
-                                            <input type="checkbox" name="permissions[]" value="apply_for_auditions" class="rounded border-theme-border text-theme-primary focus:ring-theme-primary" {{ in_array('apply_for_auditions', $role->permissions ?? []) ? 'checked' : '' }}>
-                                            <span class="ml-2 text-sm text-theme-text">Apply for Auditions</span>
+                                            <input type="checkbox" name="permissions[]" value="view_dashboard" class="rounded border-theme-border text-theme-primary focus:ring-theme-primary" {{ in_array('view_dashboard', $role->permissions ?? []) ? 'checked' : '' }}>
+                                            <span class="ml-2 text-sm text-theme-text">View Dashboard</span>
                                         </label>
                                     </div>
                                 </div>

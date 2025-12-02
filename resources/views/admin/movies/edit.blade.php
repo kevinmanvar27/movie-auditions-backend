@@ -57,8 +57,8 @@
                     </div>
                     
                     <div>
-                        <label for="release_date" class="block text-sm font-medium text-theme-text">Release Date</label>
-                        <input type="date" name="release_date" id="release_date" class="input-field mt-1 block w-full" value="{{ old('release_date', $movie->release_date->format('Y-m-d')) }}" min="{{ date('Y-m-d') }}" required>
+                        <label for="end_date" class="block text-sm font-medium text-theme-text">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="input-field mt-1 block w-full" value="{{ old('end_date', $movie->end_date->format('Y-m-d')) }}" min="{{ date('Y-m-d') }}" required>
                     </div>
                     
                     <div>

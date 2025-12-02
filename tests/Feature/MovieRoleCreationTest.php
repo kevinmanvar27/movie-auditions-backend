@@ -19,7 +19,7 @@ class MovieRoleCreationTest extends TestCase
         $adminRole = Role::create([
             'name' => 'Admin',
             'description' => 'Administrator role',
-            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles', 'manage_settings']
+            'permissions' => ['manage_users', 'manage_movies', 'manage_roles', 'manage_settings']
         ]);
 
         // Create an admin user with proper role_id
@@ -36,7 +36,7 @@ class MovieRoleCreationTest extends TestCase
             'title' => 'Test Movie',
             'description' => 'A test movie description',
             'genre' => ['Action'], // Changed from string to array
-            'release_date' => '2025-12-25',
+            'end_date' => '2025-12-25',
             'director' => 'Test Director',
             'status' => 'active',
             'roles' => [

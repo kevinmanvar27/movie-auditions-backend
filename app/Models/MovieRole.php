@@ -12,7 +12,6 @@ class MovieRole extends Model
     
     protected $fillable = [
         'movie_id',
-        'character_name',
         'description',
         'status',
         'role_type',
@@ -26,8 +25,4 @@ class MovieRole extends Model
         return $this->belongsTo(Movie::class);
     }
     
-    public function auditions()
-    {
-        return $this->hasMany(Audition::class);
-    }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 // Authentication Routes
 Route::get('/', function () {
@@ -13,12 +14,31 @@ Auth::routes();
 
 // Home route (fallback)
 Route::get('/home', function () {
-    return redirect()->route('admin.dashboard');
+    return redirect()->route('auditions.index');
 })->name('home');
+
+// Audition Routes (Protected) - Accessible to all authenticated users
+Route::middleware(['auth'])->group(function () {
+    Route::resource('auditions', App\Http\Controllers\AuditionController::class)->names([
+        'index' => 'auditions.index',
+        'create' => 'auditions.create',
+        'store' => 'auditions.store',
+        'show' => 'auditions.show',
+    ]);
+    
+    // Route for removing videos from auditions
+    Route::delete('auditions/{audition}/remove-video', [App\Http\Controllers\AuditionController::class, 'removeVideo'])->name('auditions.remove-video');
+    
+    // Route for uploading new videos to auditions
+    Route::post('auditions/{audition}/upload-videos', [App\Http\Controllers\AuditionController::class, 'uploadVideos'])->name('auditions.upload-videos');
+    
+    // AJAX route for fetching movie roles
+    Route::get('movies/{movie}/roles', [App\Http\Controllers\AuditionController::class, 'getMovieRoles'])->name('movies.roles');
+});
 
 // Admin Routes (Protected)
 Route::middleware(['auth'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard')->middleware('permission:view_dashboard');
     
     // Movies Routes - Require manage_movies permission
     Route::middleware('permission:manage_movies')->group(function () {
@@ -31,19 +51,14 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
             'update' => 'admin.movies.update',
             'destroy' => 'admin.movies.destroy',
         ]);
+        
+        // Route for updating audition status
+        Route::post('auditions/{audition}/update-status', [App\Http\Controllers\Admin\MovieController::class, 'updateAuditionStatus'])->name('admin.auditions.update-status');
     });
     
-    // Auditions Routes - Require manage_auditions permission
+    // Audition Routes - Require manage_auditions permission
     Route::middleware('permission:manage_auditions')->group(function () {
-        Route::resource('auditions', App\Http\Controllers\Admin\AuditionController::class)->names([
-            'index' => 'admin.auditions.index',
-            'create' => 'admin.auditions.create',
-            'store' => 'admin.auditions.store',
-            'show' => 'admin.auditions.show',
-            'edit' => 'admin.auditions.edit',
-            'update' => 'admin.auditions.update',
-            'destroy' => 'admin.auditions.destroy',
-        ]);
+        // Add any specific audition management routes here in the future
     });
     
     // Users Routes - Require manage_users permission
@@ -83,3 +98,22 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/profile', [App\Http\Controllers\Admin\SettingController::class, 'updateProfile'])->name('admin.profile.update');
     Route::put('/profile/password', [App\Http\Controllers\Admin\SettingController::class, 'updateProfilePassword'])->name('admin.profile.update-password');
 });
+
+// Debug route to check user permissions
+Route::get('/debug-permissions', function (Request $request) {
+    if (auth()->check()) {
+        $user = auth()->user();
+        return response()->json([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => $user->email,
+            'role_id' => $user->role_id,
+            'role_name' => $user->role ? $user->role->name : null,
+            'permissions' => $user->role ? $user->role->permissions : null,
+            'has_manage_movies' => $user->hasPermission('manage_movies'),
+            'is_super_admin' => $user->hasRole('Super Admin')
+        ]);
+    } else {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+})->middleware('auth');

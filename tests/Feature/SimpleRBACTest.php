@@ -18,13 +18,13 @@ class SimpleRBACTest extends TestCase
         $adminRole = Role::create([
             'name' => 'Admin',
             'description' => 'Administrator role',
-            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions']
+            'permissions' => ['manage_users', 'manage_movies']
         ]);
 
         $userRole = Role::create([
             'name' => 'User',
             'description' => 'Regular user role',
-            'permissions' => ['view_movies', 'apply_for_auditions']
+            'permissions' => ['view_movies']
         ]);
 
         // Create users with roles

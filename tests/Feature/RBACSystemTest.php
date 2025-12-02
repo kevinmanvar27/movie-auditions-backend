@@ -24,13 +24,13 @@ class RBACSystemTest extends TestCase
         $this->adminRole = Role::create([
             'name' => 'Admin',
             'description' => 'Administrator role',
-            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles']
+            'permissions' => ['manage_users', 'manage_movies', 'manage_roles']
         ]);
 
         $this->userRole = Role::create([
             'name' => 'User',
             'description' => 'Regular user role',
-            'permissions' => ['view_movies', 'apply_for_auditions']
+            'permissions' => ['view_movies']
         ]);
 
         // Create users with roles

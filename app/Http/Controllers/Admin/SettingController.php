@@ -23,15 +23,26 @@ class SettingController extends Controller
      */
     public function update(Request $request)
     {
+        // Get PHP's upload limit in MB
+        $phpUploadLimitMb = (int)(ini_get('upload_max_filesize'));
+        
         // Validate and update settings
         $validated = $request->validate([
             'site_name' => 'required|string|max:255',
             'site_description' => 'nullable|string',
             'admin_email' => 'required|email',
+            'video_upload_limit' => 'nullable|integer|min:1|max:' . ($phpUploadLimitMb * 1024), // Convert MB to KB
+        ], [
+            'video_upload_limit.max' => 'The video upload limit cannot exceed the server limit of ' . $phpUploadLimitMb . 'MB.'
         ]);
 
         // Save settings to database
         foreach ($validated as $key => $value) {
+            // Convert video upload limit from MB to KB for storage
+            if ($key === 'video_upload_limit' && $value !== null) {
+                $value = $value * 1024; // Convert MB to KB
+            }
+            
             \App\Models\SystemSetting::updateOrCreate(
                 ['key' => $key],
                 ['value' => $value]

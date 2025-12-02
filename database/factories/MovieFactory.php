@@ -20,7 +20,7 @@ class MovieFactory extends Factory
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(),
             'genre' => $this->faker->word(),
-            'release_date' => $this->faker->date(),
+            'end_date' => $this->faker->date(),
             'director' => $this->faker->name(),
             'status' => $this->faker->randomElement(['active', 'inactive', 'upcoming']),
         ];

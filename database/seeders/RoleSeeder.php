@@ -24,24 +24,28 @@ class RoleSeeder extends Seeder
                     'manage_movies',
                     'manage_auditions',
                     'view_reports',
-                    'manage_settings'
+                    'manage_settings',
+                    'view_movies',
+                    'view_dashboard'
                 ]
             ],
             [
                 'name' => 'Admin',
-                'description' => 'Can manage users, movies and auditions',
+                'description' => 'Can manage users and movies',
                 'permissions' => [
                     'manage_users',
                     'manage_movies',
-                    'manage_auditions'
+                    'manage_auditions',
+                    'view_dashboard'
                 ]
             ],
             [
                 'name' => 'Editor',
-                'description' => 'Can manage movies and auditions',
+                'description' => 'Can manage movies',
                 'permissions' => [
                     'manage_movies',
-                    'manage_auditions'
+                    'manage_auditions',
+                    'view_dashboard'
                 ]
             ],
             [
@@ -49,7 +53,7 @@ class RoleSeeder extends Seeder
                 'description' => 'Basic user with limited access',
                 'permissions' => [
                     'view_movies',
-                    'apply_for_auditions'
+                    'view_dashboard'
                 ]
             ]
         ];

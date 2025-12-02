@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Movie;
-use App\Models\Audition;
+// use App\Models\Audition;  // Removed audition import
 
 class DashboardController extends Controller
 {
@@ -16,14 +16,11 @@ class DashboardController extends Controller
     {
         // Get dynamic statistics
         $totalMovies = Movie::count();
-        $totalAuditions = Audition::count();
-        $successfulAuditions = Audition::where('status', 'approved')->count();
+        $totalAuditions = 0;  // Removed audition count
+        $successfulAuditions = 0;  // Removed successful audition count
         
-        // Get recent activity (last 5 auditions)
-        $recentActivity = Audition::with(['movie', 'user'])
-            ->latest()
-            ->limit(5)
-            ->get();
+        // Get recent activity (empty since auditions are removed)
+        $recentActivity = collect();
         
         return view('admin.dashboard', compact('totalMovies', 'totalAuditions', 'successfulAuditions', 'recentActivity'));
     }

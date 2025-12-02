@@ -24,13 +24,13 @@ class PermissionSystemTest extends TestCase
         $this->adminRole = Role::create([
             'name' => 'Admin',
             'description' => 'Administrator role',
-            'permissions' => ['manage_users', 'manage_movies', 'manage_auditions', 'manage_roles', 'manage_settings']
+            'permissions' => ['manage_users', 'manage_movies', 'manage_roles', 'manage_settings']
         ]);
 
         $this->userRole = Role::create([
             'name' => 'User',
             'description' => 'Regular user role',
-            'permissions' => ['view_movies', 'apply_for_auditions']
+            'permissions' => ['view_movies']
         ]);
 
         // Create users with roles
@@ -78,25 +78,6 @@ class PermissionSystemTest extends TestCase
     {
         $response = $this->actingAs($this->regularUser)
             ->get(route('admin.movies.index'));
-
-        // Regular users should be redirected back with an error message
-        $response->assertSessionHas('error');
-    }
-
-    /** @test */
-    public function admin_user_can_access_auditions_management()
-    {
-        $response = $this->actingAs($this->adminUser)
-            ->get(route('admin.auditions.index'));
-
-        $response->assertStatus(200);
-    }
-
-    /** @test */
-    public function regular_user_cannot_access_auditions_management()
-    {
-        $response = $this->actingAs($this->regularUser)
-            ->get(route('admin.auditions.index'));
 
         // Regular users should be redirected back with an error message
         $response->assertSessionHas('error');

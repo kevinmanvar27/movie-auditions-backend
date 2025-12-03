@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('get_video_upload_limit')) {
     /**
@@ -33,5 +34,31 @@ if (!function_exists('get_video_upload_limit_mb')) {
     function get_video_upload_limit_mb()
     {
         return round(get_video_upload_limit() / 1024, 2);
+    }
+}
+
+if (!function_exists('get_site_logo')) {
+    /**
+     * Get the site logo URL
+     *
+     * @return string|null
+     */
+    function get_site_logo()
+    {
+        try {
+            // Get logo path from system settings
+            $logoPath = DB::table('system_settings')->where('key', 'logo_path')->value('value');
+            
+            // Return the full URL if logo exists
+            if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+                return Storage::url($logoPath);
+            }
+            
+            // Return null if no logo or logo doesn't exist
+            return null;
+        } catch (\Exception $e) {
+            // Return null if there's any error
+            return null;
+        }
     }
 }

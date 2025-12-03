@@ -13,6 +13,35 @@ class SystemSettingsSeeder extends Seeder
      */
     public function run(): void
     {
-        // No video upload limit setting needed anymore
+        // Create default system settings
+        $settings = [
+            [
+                'key' => 'site_name',
+                'value' => 'Movie Auditions Platform',
+                'description' => 'The name of the website'
+            ],
+            [
+                'key' => 'site_description',
+                'value' => 'A platform for managing movies and casting.',
+                'description' => 'Description of the website'
+            ],
+            [
+                'key' => 'admin_email',
+                'value' => 'admin@example.com',
+                'description' => 'Administrator email address'
+            ],
+            [
+                'key' => 'logo_path',
+                'value' => null,
+                'description' => 'Path to the site logo'
+            ]
+        ];
+
+        foreach ($settings as $setting) {
+            DB::table('system_settings')->updateOrInsert(
+                ['key' => $setting['key']],
+                $setting
+            );
+        }
     }
 }

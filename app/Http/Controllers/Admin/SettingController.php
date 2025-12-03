@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\SystemSetting;
 
 class SettingController extends Controller
 {
@@ -15,7 +16,10 @@ class SettingController extends Controller
      */
     public function index()
     {
-        return view('admin.settings.index');
+        // Get all system settings
+        $settings = SystemSetting::pluck('value', 'key')->toArray();
+        
+        return view('admin.settings.index', compact('settings'));
     }
 
     /**
@@ -32,18 +36,45 @@ class SettingController extends Controller
             'site_description' => 'nullable|string',
             'admin_email' => 'required|email',
             'video_upload_limit' => 'nullable|integer|min:1|max:' . ($phpUploadLimitMb * 1024), // Convert MB to KB
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Logo validation
         ], [
-            'video_upload_limit.max' => 'The video upload limit cannot exceed the server limit of ' . $phpUploadLimitMb . 'MB.'
+            'video_upload_limit.max' => 'The video upload limit cannot exceed the server limit of ' . $phpUploadLimitMb . 'MB.',
+            'logo.image' => 'The logo must be an image.',
+            'logo.mimes' => 'The logo must be a file of type: jpeg, png, jpg, gif, svg.',
+            'logo.max' => 'The logo may not be greater than 2MB.',
         ]);
 
-        // Save settings to database
+        // Handle logo upload
+        if ($request->hasFile('logo')) {
+            // Delete old logo if exists
+            $oldLogoPath = SystemSetting::where('key', 'logo_path')->value('value');
+            if ($oldLogoPath && Storage::disk('public')->exists($oldLogoPath)) {
+                Storage::disk('public')->delete($oldLogoPath);
+            }
+            
+            // Store new logo
+            $logoPath = $request->file('logo')->store('logos', 'public');
+            
+            // Save logo path to settings
+            SystemSetting::updateOrCreate(
+                ['key' => 'logo_path'],
+                ['value' => $logoPath]
+            );
+        }
+        
+        // Save other settings to database
         foreach ($validated as $key => $value) {
+            // Skip logo as it's handled separately
+            if ($key === 'logo') {
+                continue;
+            }
+            
             // Convert video upload limit from MB to KB for storage
             if ($key === 'video_upload_limit' && $value !== null) {
                 $value = $value * 1024; // Convert MB to KB
             }
             
-            \App\Models\SystemSetting::updateOrCreate(
+            SystemSetting::updateOrCreate(
                 ['key' => $key],
                 ['value' => $value]
             );

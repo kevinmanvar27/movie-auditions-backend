@@ -33,8 +33,13 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('auditions.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('auditions.store') }}" enctype="multipart/form-data" id="auditionForm">
                 @csrf
+                
+                <!-- Hidden fields for payment verification -->
+                <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+                <input type="hidden" name="razorpay_signature" id="razorpay_signature">
                 
                 <div class="grid grid-cols-1 gap-6">
                     <!-- Movie Selection -->
@@ -105,8 +110,8 @@
                         </x-button>
                     </a>
                     
-                    <x-button type="submit" variant="primary" size="md" class="w-full sm:w-auto">
-                        Submit Audition
+                    <x-button type="button" variant="primary" size="md" class="w-full sm:w-auto" id="payAndSubmitBtn">
+                        Pay & Submit Audition
                     </x-button>
                 </div>
             </form>
@@ -116,6 +121,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 $(document).ready(function() {
     // Handle movie selection change
@@ -176,6 +182,67 @@ $(document).ready(function() {
     if (selectedMovie) {
         $('#movie_id').trigger('change');
     }
+    
+    // Handle payment and submission
+    $('#payAndSubmitBtn').on('click', function(e) {
+        e.preventDefault();
+        
+        // Validate form fields
+        var movieId = $('#movie_id').val();
+        var role = $('#role').val();
+        var applicantName = $('#applicant_name').val();
+        
+        if (!movieId || !role || !applicantName) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+        
+        // Create payment order
+        $.ajax({
+            url: '{{ route("payment.audition.order") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Open Razorpay checkout
+                    var options = {
+                        "key": response.razorpay_key_id || "{{ env('RAZORPAY_KEY_ID') }}",
+                        "amount": response.amount * 100, // Amount in paise
+                        "currency": response.currency,
+                        "name": "Movie Auditions Platform",
+                        "description": "Audition Submission Fee",
+                        "order_id": response.order_id,
+                        "handler": function (response) {
+                            // Set payment details in hidden fields
+                            $('#razorpay_payment_id').val(response.razorpay_payment_id);
+                            $('#razorpay_order_id').val(response.razorpay_order_id);
+                            $('#razorpay_signature').val(response.razorpay_signature);
+                            
+                            // Submit the form
+                            $('#auditionForm').submit();
+                        },
+                        "prefill": {
+                            "name": "{{ Auth::user()->name }}",
+                            "email": "{{ Auth::user()->email }}"
+                        },
+                        "theme": {
+                            "color": "#F37254"
+                        }
+                    };
+                    
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    alert(response.message || 'Failed to create payment order.');
+                }
+            },
+            error: function(xhr) {
+                alert('Failed to create payment order. Please try again.');
+            }
+        });
+    });
 });
 </script>
 @endsection

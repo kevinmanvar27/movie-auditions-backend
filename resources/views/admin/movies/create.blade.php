@@ -12,8 +12,13 @@
         </div>
 
         <div class="bg-theme-surface rounded-lg shadow border border-theme-border">
-            <form method="POST" action="{{ route('admin.movies.store') }}" class="p-6">
+            <form method="POST" action="{{ route('admin.movies.store') }}" class="p-6" id="movieForm">
                 @csrf
+                
+                <!-- Hidden fields for payment verification -->
+                <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+                <input type="hidden" name="razorpay_signature" id="razorpay_signature">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -158,8 +163,8 @@
                 
                 <div class="mt-8 flex justify-end space-x-3">
                     <a href="{{ route('admin.movies.index') }}" class="btn btn-secondary py-2 px-4 mt-6 mr-4">Cancel</a>
-                    <button type="submit" class="btn btn-primary py-2 px-4 mt-6" data-loading>
-                        <span class="loading-text">Create Movie</span>
+                    <button type="button" class="btn btn-primary py-2 px-4 mt-6" id="payAndCreateBtn" data-loading>
+                        <span class="loading-text">Pay & Create Movie</span>
                         <span class="loading-spinner hidden">
                             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -173,6 +178,7 @@
     </div>
 
     <!-- JavaScript for dynamic role fields -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Select2 for genre selection
@@ -267,6 +273,72 @@
                     // Re-add event listeners to all remove buttons
                     addRemoveEventListeners();
                 }
+            });
+            
+            // Handle payment and creation
+            document.getElementById('payAndCreateBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Validate form fields
+                var title = document.getElementById('title').value;
+                var genre = document.getElementById('genre').value;
+                var endDate = document.getElementById('end_date').value;
+                var director = document.getElementById('director').value;
+                var status = document.getElementById('status').value;
+                
+                if (!title || !genre || !endDate || !director || !status) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+                
+                // Create payment order
+                fetch('{{ route("payment.movie.order") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.success) {
+                        // Open Razorpay checkout
+                        var options = {
+                            "key": response.razorpay_key_id || "{{ env('RAZORPAY_KEY_ID') }}",
+                            "amount": response.amount * 100, // Amount in paise
+                            "currency": response.currency,
+                            "name": "Movie Auditions Platform",
+                            "description": "Movie Creation Fee",
+                            "order_id": response.order_id,
+                            "handler": function (rzpResponse) {
+                                // Set payment details in hidden fields
+                                document.getElementById('razorpay_payment_id').value = rzpResponse.razorpay_payment_id;
+                                document.getElementById('razorpay_order_id').value = rzpResponse.razorpay_order_id;
+                                document.getElementById('razorpay_signature').value = rzpResponse.razorpay_signature;
+                                
+                                // Submit the form
+                                document.getElementById('movieForm').submit();
+                            },
+                            "prefill": {
+                                "name": "{{ Auth::user()->name }}",
+                                "email": "{{ Auth::user()->email }}"
+                            },
+                            "theme": {
+                                "color": "#F37254"
+                            }
+                        };
+                        
+                        var rzp = new Razorpay(options);
+                        rzp.open();
+                    } else {
+                        alert(response.message || 'Failed to create payment order.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to create payment order. Please try again.');
+                });
             });
         });
     </script>

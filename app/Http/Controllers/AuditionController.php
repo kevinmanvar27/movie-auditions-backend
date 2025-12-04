@@ -111,11 +111,16 @@ class AuditionController extends Controller
      */
     public function store(Request $request)
     {
+        // First validate the request data
         $validator = Validator::make($request->all(), [
             'movie_id' => 'required|exists:movies,id',
             'role' => 'required|string|max:255',
             'applicant_name' => 'required|string|max:255',
             'uploaded_videos' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv,webm',
+            // Payment verification fields
+            'razorpay_payment_id' => 'required|string',
+            'razorpay_order_id' => 'required|string',
+            'razorpay_signature' => 'required|string',
         ], [
             'uploaded_videos.mimes' => 'The video file must be a file of type: mp4, mov, avi, wmv, flv, webm.',
         ]);

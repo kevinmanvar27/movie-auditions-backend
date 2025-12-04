@@ -21,5 +21,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Load helper functions
         require_once base_path('app/Helpers/SystemSettingHelper.php');
+        require_once base_path('app/Helpers/PaymentHelper.php');
     }
 }

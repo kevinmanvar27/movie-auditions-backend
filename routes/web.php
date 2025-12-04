@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 // Authentication Routes
 Route::get('/', function () {
@@ -16,6 +17,14 @@ Auth::routes();
 Route::get('/home', function () {
     return redirect()->route('auditions.index');
 })->name('home');
+
+// Payment Routes (Protected)
+Route::middleware(['auth'])->group(function () {
+    Route::post('/payment/audition/order', [App\Http\Controllers\PaymentController::class, 'createAuditionPaymentOrder'])->name('payment.audition.order');
+    Route::post('/payment/movie/order', [App\Http\Controllers\PaymentController::class, 'createMoviePaymentOrder'])->name('payment.movie.order');
+    Route::post('/payment/audition/verify', [App\Http\Controllers\PaymentController::class, 'verifyAuditionPaymentAndSubmit'])->name('payment.audition.verify');
+    Route::post('/payment/movie/verify', [App\Http\Controllers\PaymentController::class, 'verifyMoviePaymentAndCreate'])->name('payment.movie.verify');
+});
 
 // Audition Routes (Protected) - Accessible to all authenticated users
 Route::middleware(['auth'])->group(function () {
@@ -99,21 +108,3 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/profile/password', [App\Http\Controllers\Admin\SettingController::class, 'updateProfilePassword'])->name('admin.profile.update-password');
 });
 
-// Debug route to check user permissions
-Route::get('/debug-permissions', function (Request $request) {
-    if (auth()->check()) {
-        $user = auth()->user();
-        return response()->json([
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'user_email' => $user->email,
-            'role_id' => $user->role_id,
-            'role_name' => $user->role ? $user->role->name : null,
-            'permissions' => $user->role ? $user->role->permissions : null,
-            'has_manage_movies' => $user->hasPermission('manage_movies'),
-            'is_super_admin' => $user->hasRole('Super Admin')
-        ]);
-    } else {
-        return response()->json(['error' => 'Not authenticated']);
-    }
-})->middleware('auth');

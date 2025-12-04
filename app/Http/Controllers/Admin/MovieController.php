@@ -88,6 +88,10 @@ class MovieController extends Controller
                 'roles.*.gender' => 'nullable|string|max:20',
                 'roles.*.age_range' => 'nullable|string|max:20',
                 'roles.*.dialogue_sample' => 'nullable|string|max:1000',
+                // Payment verification fields
+                'razorpay_payment_id' => 'required|string',
+                'razorpay_order_id' => 'required|string',
+                'razorpay_signature' => 'required|string',
             ]);
 
             // Log the validated data

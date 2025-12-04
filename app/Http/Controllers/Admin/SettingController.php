@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\SystemSetting;
+use App\Models\User;
 
 class SettingController extends Controller
 {
@@ -32,16 +33,31 @@ class SettingController extends Controller
         
         // Validate and update settings
         $validated = $request->validate([
-            'site_name' => 'required|string|max:255',
+            'site_name' => 'nullable|string|max:255',
             'site_description' => 'nullable|string',
-            'admin_email' => 'required|email',
+            'admin_email' => 'nullable|email',
             'video_upload_limit' => 'nullable|integer|min:1|max:' . ($phpUploadLimitMb * 1024), // Convert MB to KB
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Logo validation
+            // Payment settings
+            'casting_director_amount' => 'nullable|numeric|min:0',
+            'casting_director_percentage' => 'nullable|numeric|min:0|max:100',
+            'audition_user_amount' => 'nullable|numeric|min:0',
+            // Razorpay keys
+            'razorpay_key_id' => 'nullable|string',
+            'razorpay_key_secret' => 'nullable|string',
         ], [
             'video_upload_limit.max' => 'The video upload limit cannot exceed the server limit of ' . $phpUploadLimitMb . 'MB.',
             'logo.image' => 'The logo must be an image.',
             'logo.mimes' => 'The logo must be a file of type: jpeg, png, jpg, gif, svg.',
             'logo.max' => 'The logo may not be greater than 2MB.',
+            // Payment validation messages
+            'casting_director_amount.numeric' => 'The casting director amount must be a valid number.',
+            'casting_director_amount.min' => 'The casting director amount must be zero or greater.',
+            'casting_director_percentage.numeric' => 'The casting director percentage must be a valid number.',
+            'casting_director_percentage.min' => 'The casting director percentage must be zero or greater.',
+            'casting_director_percentage.max' => 'The casting director percentage cannot exceed 100%.',
+            'audition_user_amount.numeric' => 'The audition user amount must be a valid number.',
+            'audition_user_amount.min' => 'The audition user amount must be zero or greater.',
         ]);
 
         // Handle logo upload
@@ -124,8 +140,9 @@ class SettingController extends Controller
             unset($validated['profile_photo']);
         }
 
-        // Update the user
-        $user->update($validated);
+        // Update the user using fill and save
+        $user->fill($validated);
+        $user->save();
 
         return redirect()->route('admin.profile')->with('success', 'Profile updated successfully!');
     }

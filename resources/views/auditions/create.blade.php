@@ -110,9 +110,15 @@
                         </x-button>
                     </a>
                     
-                    <x-button type="button" variant="primary" size="md" class="w-full sm:w-auto" id="payAndSubmitBtn">
-                        Pay & Submit Audition
-                    </x-button>
+                    @if(is_audition_user_payment_required())
+                        <x-button type="button" variant="primary" size="md" class="w-full sm:w-auto" id="payAndSubmitBtn">
+                            Pay & Submit Audition
+                        </x-button>
+                    @else
+                        <x-button type="submit" variant="primary" size="md" class="w-full sm:w-auto">
+                            Submit Audition
+                        </x-button>
+                    @endif
                 </div>
             </form>
         </div>
@@ -184,6 +190,7 @@ $(document).ready(function() {
     }
     
     // Handle payment and submission
+    @if(is_audition_user_payment_required())
     $('#payAndSubmitBtn').on('click', function(e) {
         e.preventDefault();
         
@@ -243,6 +250,7 @@ $(document).ready(function() {
             }
         });
     });
+    @endif
 });
 </script>
 @endsection

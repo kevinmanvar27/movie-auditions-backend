@@ -3,6 +3,43 @@
 @section('title', 'Settings')
 
 @section('content')
+<style>
+/* Toggle background */
+.toggle-switch {
+    background-color: #d1d5db; /* gray */
+    width: 46px;
+    height: 24px;
+    border-radius: 9999px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+/* When toggle is enabled */
+.toggle-switch.enabled {
+    background-color: #22c55e; /* green */
+}
+
+/* Toggle circle (slider) */
+.toggle-switch .toggle-slider {
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    transition: transform 0.3s ease;
+    top: 3px;
+    left: 3px;
+}
+
+/* When enabled, move the slider */
+.toggle-switch.enabled .toggle-slider {
+    transform: translateX(22px);
+}
+
+</style>
     <div class="p-4 sm:p-6">
         @include('components.error-message')
         
@@ -142,6 +179,23 @@
                             @method('PUT')
                             
                             <div class="space-y-6">
+                                <!-- Payment Requirement Toggle -->
+                                <div>
+                                    <label class="block text-sm font-medium text-theme-text mb-2">Payment Required</label>
+                                    <div class="flex items-center">
+                                        <button type="button" 
+                                                class="toggle-switch {{ ($settings['casting_director_payment_required'] ?? '0') == '1' ? 'enabled' : '' }} relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+                                                data-setting="casting_director_payment_required">
+                                            <span class="toggle-slider inline-block h-4 w-4 rounded-full bg-white duration-200 ease-in-out translate-x-1 {{ ($settings['casting_director_payment_required'] ?? '0') == '1' ? 'translate-x-6' : '' }}"></span>
+                                        </button>
+                                        <input type="hidden" name="casting_director_payment_required" value="{{ $settings['casting_director_payment_required'] ?? '0' }}">
+                                        <span class="ml-3 text-sm text-theme-text-secondary">
+                                            {{ ($settings['casting_director_payment_required'] ?? '0') == '1' ? 'Enabled' : 'Disabled' }}
+                                        </span>
+                                    </div>
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Enable to require payment from casting directors when adding movies</p>
+                                </div>
+                                
                                 <div>
                                     <label for="casting_director_amount" class="block text-sm font-medium text-theme-text">Fixed Amount ($)</label>
                                     <input type="number" name="casting_director_amount" id="casting_director_amount" class="input-field mt-1 block w-full" value="{{ $settings['casting_director_amount'] ?? '' }}" min="0" step="0.01">
@@ -180,6 +234,23 @@
                             @method('PUT')
                             
                             <div class="space-y-6">
+                                <!-- Payment Requirement Toggle -->
+                                <div>
+                                    <label class="block text-sm font-medium text-theme-text mb-2">Payment Required</label>
+                                    <div class="flex items-center">
+                                        <button type="button" 
+                                                class="toggle-switch {{ ($settings['audition_user_payment_required'] ?? '0') == '1' ? 'enabled' : '' }} relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+                                                data-setting="audition_user_payment_required">
+                                            <span class="toggle-slider inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out translate-x-1 {{ ($settings['audition_user_payment_required'] ?? '0') == '1' ? 'translate-x-6' : '' }}"></span>
+                                        </button>
+                                        <input type="hidden" name="audition_user_payment_required" value="{{ $settings['audition_user_payment_required'] ?? '0' }}">
+                                        <span class="ml-3 text-sm text-theme-text-secondary">
+                                            {{ ($settings['audition_user_payment_required'] ?? '0') == '1' ? 'Enabled' : 'Disabled' }}
+                                        </span>
+                                    </div>
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Enable to require payment from audition users when submitting auditions</p>
+                                </div>
+                                
                                 <div>
                                     <label for="audition_user_amount" class="block text-sm font-medium text-theme-text">Fixed Amount ($)</label>
                                     <input type="number" name="audition_user_amount" id="audition_user_amount" class="input-field mt-1 block w-full" value="{{ $settings['audition_user_amount'] ?? '' }}" min="0" step="0.01">
@@ -232,6 +303,32 @@
                     const tabId = button.getAttribute('data-tab');
                     document.getElementById(`tab-${tabId}`).classList.remove('hidden');
                     document.getElementById(`tab-${tabId}`).classList.add('active');
+                });
+            });
+            
+            // Toggle switch functionality
+            const toggleSwitches = document.querySelectorAll('.toggle-switch');
+            toggleSwitches.forEach(switchEl => {
+                switchEl.addEventListener('click', function() {
+                    const isEnabled = this.classList.contains('enabled');
+                    const input = this.nextElementSibling;
+                    const statusText = this.parentElement.querySelector('span.text-sm');
+                    
+                    if (isEnabled) {
+                        // Disable
+                        this.classList.remove('enabled');
+                        this.querySelector('.toggle-slider').classList.remove('translate-x-6');
+                        this.querySelector('.toggle-slider').classList.add('translate-x-1');
+                        input.value = '0';
+                        statusText.textContent = 'Disabled';
+                    } else {
+                        // Enable
+                        this.classList.add('enabled');
+                        this.querySelector('.toggle-slider').classList.remove('translate-x-1');
+                        this.querySelector('.toggle-slider').classList.add('translate-x-6');
+                        input.value = '1';
+                        statusText.textContent = 'Enabled';
+                    }
                 });
             });
         });

@@ -61,6 +61,17 @@ class SystemSettingsSeeder extends Seeder
                 'key' => 'razorpay_key_secret',
                 'value' => null,
                 'description' => 'Razorpay Key Secret for payment processing'
+            ],
+            // Payment requirement settings
+            [
+                'key' => 'casting_director_payment_required',
+                'value' => '0',
+                'description' => 'Require payment from casting directors when adding movies (0 = No, 1 = Yes)'
+            ],
+            [
+                'key' => 'audition_user_payment_required',
+                'value' => '0',
+                'description' => 'Require payment from audition users when submitting auditions (0 = No, 1 = Yes)'
             ]
         ];
 

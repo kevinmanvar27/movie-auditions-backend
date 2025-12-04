@@ -76,6 +76,14 @@
                     </div>
                     
                     <div>
+                        <label for="budget" class="block text-sm font-medium text-theme-text">Budget ( In CR )</label>
+                        <input type="number" name="budget" id="budget" class="input-field mt-1 block w-full" value="{{ old('budget') }}" step="0.01" min="0">
+                        @error('budget')
+                            <p class="mt-1 text-sm text-theme-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
                         <label for="status" class="block text-sm font-medium text-theme-text">Status</label>
                         <select name="status" id="status" class="input-field mt-1 block w-full" required>
                             <option value="">Select Status</option>
@@ -163,15 +171,27 @@
                 
                 <div class="mt-8 flex justify-end space-x-3">
                     <a href="{{ route('admin.movies.index') }}" class="btn btn-secondary py-2 px-4 mt-6 mr-4">Cancel</a>
-                    <button type="button" class="btn btn-primary py-2 px-4 mt-6" id="payAndCreateBtn" data-loading>
-                        <span class="loading-text">Pay & Create Movie</span>
-                        <span class="loading-spinner hidden">
-                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </span>
-                    </button>
+                    @if(is_casting_director_payment_required())
+                        <button type="button" class="btn btn-primary py-2 px-4 mt-6" id="payAndCreateBtn" data-loading>
+                            <span class="loading-text">Pay & Create Movie</span>
+                            <span class="loading-spinner hidden">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    @else
+                        <button type="submit" class="btn btn-primary py-2 px-4 mt-6" data-loading>
+                            <span class="loading-text">Create Movie</span>
+                            <span class="loading-spinner hidden">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    @endif
                 </div>
             </form>
         </div>
@@ -276,6 +296,7 @@
             });
             
             // Handle payment and creation
+            @if(is_casting_director_payment_required())
             document.getElementById('payAndCreateBtn').addEventListener('click', function(e) {
                 e.preventDefault();
                 
@@ -291,6 +312,9 @@
                     return;
                 }
                 
+                // Get budget value
+                var budget = document.getElementById('budget').value;
+                
                 // Create payment order
                 fetch('{{ route("payment.movie.order") }}', {
                     method: 'POST',
@@ -298,7 +322,9 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify({
+                        budget: budget ? parseFloat(budget) : null
+                    })
                 })
                 .then(response => response.json())
                 .then(response => {
@@ -340,6 +366,7 @@
                     alert('Failed to create payment order. Please try again.');
                 });
             });
+            @endif
         });
     </script>
 @endsection

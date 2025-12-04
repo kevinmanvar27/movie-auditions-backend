@@ -61,7 +61,11 @@ class MovieControllerTest extends TestCase
             'genre' => ['Action'], // Changed from string to array
             'end_date' => '2023-01-01',
             'director' => 'Test Director',
+            'budget' => '1000000',
             'status' => 'active',
+            'razorpay_payment_id' => 'pay_test123',
+            'razorpay_order_id' => 'order_test123',
+            'razorpay_signature' => 'sig_test123',
         ];
 
         $response = $this->actingAs($this->user)
@@ -105,6 +109,7 @@ class MovieControllerTest extends TestCase
             'genre' => ['Comedy'], // Changed from string to array
             'end_date' => '2023-12-31',
             'director' => 'Updated Director',
+            'budget' => '2000000',
             'status' => 'inactive',
         ];
 

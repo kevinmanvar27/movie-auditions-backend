@@ -70,6 +70,52 @@ if (!function_exists('get_casting_director_amount')) {
     }
 }
 
+if (!function_exists('calculate_casting_director_payment')) {
+    /**
+     * Calculate the casting director payment amount based on the higher value
+     * between fixed amount and budget percentage
+     *
+     * @param float|null $budget The movie budget
+     * @return float
+     */
+    function calculate_casting_director_payment($budget = null)
+    {
+        try {
+            // Get fixed amount from settings
+            $fixedAmount = get_casting_director_amount();
+            
+            // Get percentage from settings
+            $percentage = DB::table('system_settings')->where('key', 'casting_director_percentage')->value('value');
+            $percentage = $percentage ? (float)$percentage : 0;
+            
+            // If no budget provided or budget is 0, return fixed amount
+            if (!$budget || $budget <= 0) {
+                return $fixedAmount;
+            }
+            
+            // If no percentage set, return fixed amount
+            if ($percentage <= 0) {
+                return $fixedAmount;
+            }
+            
+            // Calculate percentage amount
+            $percentageAmount = ($budget * $percentage) / 100;
+            
+            // Return the higher value between fixed amount and percentage amount
+            // But if fixed amount is 0, return percentage amount
+            if ($fixedAmount <= 0) {
+                return $percentageAmount;
+            }
+            
+            return max($fixedAmount, $percentageAmount);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error calculating casting director payment: ' . $e->getMessage());
+            // Fallback to fixed amount if calculation fails
+            return get_casting_director_amount();
+        }
+    }
+}
+
 if (!function_exists('format_currency')) {
     /**
      * Format currency amount
@@ -85,6 +131,40 @@ if (!function_exists('format_currency')) {
                 return '₹' . number_format($amount, 2);
             default:
                 return $currency . ' ' . number_format($amount, 2);
+        }
+    }
+}
+
+if (!function_exists('is_casting_director_payment_required')) {
+    /**
+     * Check if payment is required for casting directors
+     *
+     * @return bool
+     */
+    function is_casting_director_payment_required()
+    {
+        try {
+            $isRequired = DB::table('system_settings')->where('key', 'casting_director_payment_required')->value('value');
+            return $isRequired == '1';
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('is_audition_user_payment_required')) {
+    /**
+     * Check if payment is required for audition users
+     *
+     * @return bool
+     */
+    function is_audition_user_payment_required()
+    {
+        try {
+            $isRequired = DB::table('system_settings')->where('key', 'audition_user_payment_required')->value('value');
+            return $isRequired == '1';
+        } catch (\Exception $e) {
+            return false;
         }
     }
 }

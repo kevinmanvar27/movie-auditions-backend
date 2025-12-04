@@ -42,6 +42,9 @@ class SettingController extends Controller
             'casting_director_amount' => 'nullable|numeric|min:0',
             'casting_director_percentage' => 'nullable|numeric|min:0|max:100',
             'audition_user_amount' => 'nullable|numeric|min:0',
+            // Payment requirement settings
+            'casting_director_payment_required' => 'nullable|in:0,1',
+            'audition_user_payment_required' => 'nullable|in:0,1',
             // Razorpay keys
             'razorpay_key_id' => 'nullable|string',
             'razorpay_key_secret' => 'nullable|string',
@@ -58,6 +61,9 @@ class SettingController extends Controller
             'casting_director_percentage.max' => 'The casting director percentage cannot exceed 100%.',
             'audition_user_amount.numeric' => 'The audition user amount must be a valid number.',
             'audition_user_amount.min' => 'The audition user amount must be zero or greater.',
+            // Payment requirement validation messages
+            'casting_director_payment_required.in' => 'The casting director payment requirement must be either 0 or 1.',
+            'audition_user_payment_required.in' => 'The audition user payment requirement must be either 0 or 1.',
         ]);
 
         // Handle logo upload

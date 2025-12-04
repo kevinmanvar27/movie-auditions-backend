@@ -67,6 +67,11 @@
                     </div>
                     
                     <div>
+                        <label for="budget" class="block text-sm font-medium text-theme-text">Budget</label>
+                        <input type="number" name="budget" id="budget" class="input-field mt-1 block w-full" value="{{ old('budget', $movie->budget) }}" step="0.01" min="0">
+                    </div>
+                    
+                    <div>
                         <label for="status" class="block text-sm font-medium text-theme-text">Status</label>
                         <select name="status" id="status" class="input-field mt-1 block w-full" required>
                             <option value="">Select Status</option>

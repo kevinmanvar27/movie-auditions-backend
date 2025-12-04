@@ -16,6 +16,7 @@ class Movie extends Model
         'end_date',
         'director',
         'status',
+        'budget',
     ];
     
     protected $casts = [

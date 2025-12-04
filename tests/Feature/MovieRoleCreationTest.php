@@ -38,7 +38,11 @@ class MovieRoleCreationTest extends TestCase
             'genre' => ['Action'], // Changed from string to array
             'end_date' => '2025-12-25',
             'director' => 'Test Director',
+            'budget' => '5000000',
             'status' => 'active',
+            'razorpay_payment_id' => 'pay_test123',
+            'razorpay_order_id' => 'order_test123',
+            'razorpay_signature' => 'sig_test123',
             'roles' => [
                 [
                     'role_type' => 'Lead Actor',

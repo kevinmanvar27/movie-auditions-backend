@@ -72,6 +72,7 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-theme-text-secondary uppercase tracking-wider">Title</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-theme-text-secondary uppercase tracking-wider">Genre</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-theme-text-secondary uppercase tracking-wider">End Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-theme-text-secondary uppercase tracking-wider">Budget</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-theme-text-secondary uppercase tracking-wider">Status</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-theme-text-secondary uppercase tracking-wider">Actions</th>
                 </tr>
@@ -83,6 +84,7 @@
                     <td class="px-6 py-4 text-sm font-medium text-theme-text max-w-xs truncate">{{ $movie->title }}</td>
                     <td class="px-6 py-4 text-sm text-theme-text max-w-xs truncate">{{ is_array($movie->genre) ? implode(', ', $movie->genre) : $movie->genre }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $movie->end_date->format('Y-m-d') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $movie->budget ? '₹' . number_format($movie->budget, 2) : 'N/A' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         @if($movie->status === 'active')
                             <span class="status-badge status-active">Active</span>

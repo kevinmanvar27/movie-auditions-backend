@@ -35,6 +35,11 @@
                     </div>
                     
                     <div>
+                        <label class="block text-sm font-medium text-theme-text">Budget ( In CR )</label>
+                        <p class="mt-1 text-theme-text-secondary">{{ $movie->budget ? '₹' . number_format($movie->budget, 2) : 'Not specified' }}</p>
+                    </div>
+                    
+                    <div>
                         <label class="block text-sm font-medium text-theme-text">Status</label>
                         <p class="mt-1 text-theme-text-secondary">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 

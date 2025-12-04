@@ -197,9 +197,12 @@ class PaymentController extends Controller
                 ], 500);
             }
             
-            // Get casting director payment amount from settings
-            $amount = $this->getCastingDirectorAmount();
-            Log::info('Movie payment amount: ' . $amount);
+            // Get casting director payment amount based on movie budget
+            // We'll get the budget from the request if available
+            $budget = $request->input('budget');
+            $amount = calculate_casting_director_payment($budget);
+            
+            Log::info('Movie payment amount calculated: ' . $amount . ' (based on budget: ' . ($budget ?? 'N/A') . ')');
             
             if ($amount <= 0) {
                 Log::warning('Invalid movie payment amount: ' . $amount);

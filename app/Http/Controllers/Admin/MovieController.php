@@ -73,14 +73,18 @@ class MovieController extends Controller
             // Log the incoming request data
             Log::info('Movie store request data:', $request->all());
             
+            // Check if payment is required for casting directors
+            $paymentRequired = is_casting_director_payment_required();
+            
             // Validate and store the movie
-            $validated = $request->validate([
+            $rules = [
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'genre' => 'required|array|max:100',
                 'genre.*' => 'string|max:100',
                 'end_date' => 'required|date',
                 'director' => 'required|string|max:100',
+                'budget' => 'nullable|numeric|min:0',
                 'status' => 'required|string|in:active,inactive,upcoming',
                 // Role fields validation
                 'roles' => 'nullable|array',
@@ -88,11 +92,16 @@ class MovieController extends Controller
                 'roles.*.gender' => 'nullable|string|max:20',
                 'roles.*.age_range' => 'nullable|string|max:20',
                 'roles.*.dialogue_sample' => 'nullable|string|max:1000',
-                // Payment verification fields
-                'razorpay_payment_id' => 'required|string',
-                'razorpay_order_id' => 'required|string',
-                'razorpay_signature' => 'required|string',
-            ]);
+            ];
+            
+            // Add payment verification fields only if payment is required
+            if ($paymentRequired) {
+                $rules['razorpay_payment_id'] = 'required|string';
+                $rules['razorpay_order_id'] = 'required|string';
+                $rules['razorpay_signature'] = 'required|string';
+            }
+            
+            $validated = $request->validate($rules);
 
             // Log the validated data
             Log::info('Validated movie data:', $validated);
@@ -104,6 +113,7 @@ class MovieController extends Controller
                 'genre' => json_encode($validated['genre']),
                 'end_date' => $validated['end_date'],
                 'director' => $validated['director'],
+                'budget' => $validated['budget'] ?? null,
                 'status' => $validated['status'],
             ];
             
@@ -200,6 +210,7 @@ class MovieController extends Controller
                 'genre.*' => 'string|max:100',
                 'end_date' => 'required|date',
                 'director' => 'required|string|max:100',
+                'budget' => 'nullable|numeric|min:0',
                 'status' => 'required|string|in:active,inactive,upcoming',
                 // Role fields validation
                 'roles' => 'nullable|array',
@@ -219,6 +230,7 @@ class MovieController extends Controller
                 'genre' => json_encode($validated['genre']),
                 'end_date' => $validated['end_date'],
                 'director' => $validated['director'],
+                'budget' => $validated['budget'] ?? null,
                 'status' => $validated['status'],
             ]);
 

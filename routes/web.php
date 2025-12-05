@@ -33,7 +33,7 @@ Route::middleware(['auth'])->group(function () {
         'create' => 'auditions.create',
         'store' => 'auditions.store',
         'show' => 'auditions.show',
-    ]);
+    ]); 
     
     // Route for removing videos from auditions
     Route::delete('auditions/{audition}/remove-video', [App\Http\Controllers\AuditionController::class, 'removeVideo'])->name('auditions.remove-video');

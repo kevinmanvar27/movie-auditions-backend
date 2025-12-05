@@ -26,6 +26,7 @@ class User extends Authenticatable
         'status',
         'mobile_number',
         'profile_photo',
+        'image_gallery',
         'date_of_birth',
         'gender',
     ];
@@ -50,6 +51,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'image_gallery' => 'array',
         ];
     }
     

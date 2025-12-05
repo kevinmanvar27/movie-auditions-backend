@@ -30,27 +30,18 @@ class RoleSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Admin',
-                'description' => 'Can manage users and movies',
-                'permissions' => [
-                    'manage_users',
-                    'manage_movies',
-                    'manage_auditions',
-                    'view_dashboard'
-                ]
-            ],
-            [
-                'name' => 'Editor',
-                'description' => 'Can manage movies',
+                'name' => 'Casting Director',
+                'description' => 'Can create movies and roles, manage their own movies and auditions',
                 'permissions' => [
                     'manage_movies',
                     'manage_auditions',
-                    'view_dashboard'
+                    'view_dashboard',
+                    'view_movies'
                 ]
             ],
             [
-                'name' => 'User',
-                'description' => 'Basic user with limited access',
+                'name' => 'Normal User',
+                'description' => 'Can view movies and apply for auditions',
                 'permissions' => [
                     'view_movies',
                     'view_dashboard'

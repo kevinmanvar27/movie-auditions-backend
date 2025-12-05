@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -52,6 +53,7 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role_id' => ['required', 'exists:roles,id'],
         ]);
     }
 
@@ -63,10 +65,22 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        // Check if the selected role is Super Admin, which shouldn't be allowed for regular registration
+        $role = Role::find($data['role_id']);
+        if ($role && $role->name === 'Super Admin') {
+            // Assign default role if somehow Super Admin was selected
+            $defaultRole = Role::where('name', 'Normal User')->first();
+            $roleId = $defaultRole ? $defaultRole->id : null;
+        } else {
+            $roleId = $data['role_id'];
+        }
+
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role_id' => $roleId,
+            'status' => 'active', // Set default status to active
         ]);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\NormalUser;
 
 use App\Http\Controllers\API\BaseAPIController as Controller;
 use Illuminate\Http\Request;
@@ -12,19 +12,19 @@ use App\Models\Role;
 
 /**
  * @OA\Tag(
- *     name="Auditions",
- *     description="API Endpoints for Auditions Management"
+ *     name="Normal User Auditions",
+ *     description="API Endpoints for Auditions Management by Normal Users"
  * )
  */
 class AuditionController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/v1/auditions",
-     *      operationId="getAuditionsList",
-     *      tags={"Auditions"},
-     *      summary="Get list of auditions",
-     *      description="Returns list of auditions for the authenticated user",
+     *      path="/api/v1/normal-user/auditions",
+     *      operationId="getNormalUserAuditionsList",
+     *      tags={"Normal User Auditions"},
+     *      summary="Get list of auditions created by the normal user",
+     *      description="Returns list of auditions created by the authenticated normal user",
      *      security={{"bearerAuth": {}}},
      *      @OA\Parameter(
      *          name="movie_title",
@@ -106,17 +106,10 @@ class AuditionController extends Controller
     {
         $user = Auth::user();
         
-        // Check if user has permission to view auditions
-        if (!$user->hasPermission('view_movies')) {
-            // Alternative check for users with role_id
-            if ($user->role_id) {
-                $role = $user->role()->first();
-                if (!$role || !$role->hasPermission('view_movies')) {
-                    return $this->sendError('You are not authorized to view auditions.', [], 403);
-                }
-            } else {
-                return $this->sendError('You are not authorized to view auditions.', [], 403);
-            }
+        // Ensure the user has the Normal User role
+        $normalUserRole = Role::where('name', 'Normal User')->first();
+        if (!$normalUserRole || $user->role_id !== $normalUserRole->id) {
+            return $this->sendError('You are not authorized to access this resource.', [], 403);
         }
         
         // Get user's auditions with movie information
@@ -176,11 +169,11 @@ class AuditionController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/auditions",
-     *      operationId="storeAudition",
-     *      tags={"Auditions"},
+     *      path="/api/v1/normal-user/auditions",
+     *      operationId="storeNormalUserAudition",
+     *      tags={"Normal User Auditions"},
      *      summary="Store a new audition",
-     *      description="Creates a new audition for the authenticated user",
+     *      description="Creates a new audition by the authenticated normal user",
      *      security={{"bearerAuth": {}}},
      *      @OA\RequestBody(
      *          required=true,
@@ -226,17 +219,10 @@ class AuditionController extends Controller
     {
         $user = Auth::user();
         
-        // Check if user has permission to create auditions
-        if (!$user->hasPermission('view_movies')) {
-            // Alternative check for users with role_id
-            if ($user->role_id) {
-                $role = $user->role()->first();
-                if (!$role || !$role->hasPermission('view_movies')) {
-                    return $this->sendError('You are not authorized to create auditions.', [], 403);
-                }
-            } else {
-                return $this->sendError('You are not authorized to create auditions.', [], 403);
-            }
+        // Ensure the user has the Normal User role
+        $normalUserRole = Role::where('name', 'Normal User')->first();
+        if (!$normalUserRole || $user->role_id !== $normalUserRole->id) {
+            return $this->sendError('You are not authorized to create auditions.', [], 403);
         }
         
         $validator = Validator::make($request->all(), [
@@ -270,11 +256,11 @@ class AuditionController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/auditions/{id}",
-     *      operationId="getAuditionById",
-     *      tags={"Auditions"},
+     *      path="/api/v1/normal-user/auditions/{id}",
+     *      operationId="getNormalUserAuditionById",
+     *      tags={"Normal User Auditions"},
      *      summary="Get audition information",
-     *      description="Returns audition data for the authenticated user",
+     *      description="Returns audition data created by the authenticated normal user",
      *      security={{"bearerAuth": {}}},
      *      @OA\Parameter(
      *          name="id",
@@ -314,17 +300,10 @@ class AuditionController extends Controller
     {
         $user = Auth::user();
         
-        // Check if user has permission to view auditions
-        if (!$user->hasPermission('view_movies')) {
-            // Alternative check for users with role_id
-            if ($user->role_id) {
-                $role = $user->role()->first();
-                if (!$role || !$role->hasPermission('view_movies')) {
-                    return $this->sendError('You are not authorized to view auditions.', [], 403);
-                }
-            } else {
-                return $this->sendError('You are not authorized to view auditions.', [], 403);
-            }
+        // Ensure the user has the Normal User role
+        $normalUserRole = Role::where('name', 'Normal User')->first();
+        if (!$normalUserRole || $user->role_id !== $normalUserRole->id) {
+            return $this->sendError('You are not authorized to access this resource.', [], 403);
         }
         
         // Ensure user can only view their own auditions
@@ -340,11 +319,11 @@ class AuditionController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/auditions/{id}",
-     *      operationId="updateAudition",
-     *      tags={"Auditions"},
+     *      path="/api/v1/normal-user/auditions/{id}",
+     *      operationId="updateNormalUserAudition",
+     *      tags={"Normal User Auditions"},
      *      summary="Update existing audition",
-     *      description="Updates an audition for the authenticated user",
+     *      description="Updates an audition created by the authenticated normal user",
      *      security={{"bearerAuth": {}}},
      *      @OA\Parameter(
      *          name="id",
@@ -396,17 +375,10 @@ class AuditionController extends Controller
     {
         $user = Auth::user();
         
-        // Check if user has permission to update auditions
-        if (!$user->hasPermission('view_movies')) {
-            // Alternative check for users with role_id
-            if ($user->role_id) {
-                $role = $user->role()->first();
-                if (!$role || !$role->hasPermission('view_movies')) {
-                    return $this->sendError('You are not authorized to update auditions.', [], 403);
-                }
-            } else {
-                return $this->sendError('You are not authorized to update auditions.', [], 403);
-            }
+        // Ensure the user has the Normal User role
+        $normalUserRole = Role::where('name', 'Normal User')->first();
+        if (!$normalUserRole || $user->role_id !== $normalUserRole->id) {
+            return $this->sendError('You are not authorized to update auditions.', [], 403);
         }
         
         // Ensure user can only update their own auditions
@@ -445,11 +417,11 @@ class AuditionController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/auditions/{id}",
-     *      operationId="deleteAudition",
-     *      tags={"Auditions"},
+     *      path="/api/v1/normal-user/auditions/{id}",
+     *      operationId="deleteNormalUserAudition",
+     *      tags={"Normal User Auditions"},
      *      summary="Delete audition",
-     *      description="Deletes an audition for the authenticated user",
+     *      description="Deletes an audition created by the authenticated normal user",
      *      security={{"bearerAuth": {}}},
      *      @OA\Parameter(
      *          name="id",
@@ -488,17 +460,10 @@ class AuditionController extends Controller
     {
         $user = Auth::user();
         
-        // Check if user has permission to delete auditions
-        if (!$user->hasPermission('view_movies')) {
-            // Alternative check for users with role_id
-            if ($user->role_id) {
-                $role = $user->role()->first();
-                if (!$role || !$role->hasPermission('view_movies')) {
-                    return $this->sendError('You are not authorized to delete auditions.', [], 403);
-                }
-            } else {
-                return $this->sendError('You are not authorized to delete auditions.', [], 403);
-            }
+        // Ensure the user has the Normal User role
+        $normalUserRole = Role::where('name', 'Normal User')->first();
+        if (!$normalUserRole || $user->role_id !== $normalUserRole->id) {
+            return $this->sendError('You are not authorized to delete auditions.', [], 403);
         }
         
         // Ensure user can only delete their own auditions

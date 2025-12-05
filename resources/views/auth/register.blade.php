@@ -42,6 +42,22 @@
                         <input id="password-confirm" type="password" class="w-full px-4 py-3 border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-primary focus:border-theme-primary bg-theme-background text-theme-text" name="password_confirmation" required autocomplete="new-password">
                     </div>
 
+                    <!-- Role Selection -->
+                    <div class="mb-4 sm:mb-6">
+                        <label for="role_id" class="block text-sm font-medium text-theme-text mb-2">User Role</label>
+                        <select id="role_id" class="w-full px-4 py-3 border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-primary focus:border-theme-primary bg-theme-background text-theme-text" name="role_id" required>
+                            <option value="">Select Role</option>
+                            @foreach(App\Models\Role::all() as $role)
+                                @if($role->name !== 'Super Admin') {{-- Don't allow users to register as Super Admin --}}
+                                    <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                        @error('role_id')
+                            <p class="mt-1 text-sm text-theme-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <a class="text-sm text-theme-primary hover:text-[#e05e00]" href="{{ route('login') }}">
                             {{ __('Already have an account?') }}

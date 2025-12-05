@@ -75,7 +75,7 @@
 
         <div class="flex flex-1">
             <!-- Sidebar -->
-            <aside id="sidebar" class="bg-theme-surface border-r border-theme-border w-64 fixed lg:static h-full lg:h-auto z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            <aside id="sidebar" class="bg-theme-surface border-r border-theme-border w-64 fixed lg:static h-full lg:h-auto z-30 transform translate-x-0 lg:translate-x-0 transition-transform duration-300 ease-in-out">
                 <div class="flex flex-col h-full">
                     <div class="p-4 border-b border-theme-border">
                         <h2 class="text-lg font-semibold text-theme-text">Navigation</h2>

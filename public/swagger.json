@@ -305,6 +305,538 @@
     }
   },
   "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check endpoint",
+        "description": "Returns the health status of the API",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-12-04T12:00:00Z"
+                    },
+                    "service": {
+                      "type": "string",
+                      "example": "Movie Auditions API"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health-check": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check endpoint",
+        "description": "Returns the health status of the API",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-12-04T12:00:00Z"
+                    },
+                    "service": {
+                      "type": "string",
+                      "example": "Movie Auditions API"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User login",
+        "description": "Authenticate a user and return an access token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "token": {
+                          "type": "string",
+                          "example": "1|abcdefghijklmnopqrstuvwxyz123456"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Login successful."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid credentials."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Validation Error."
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User registration",
+        "description": "Register a new user and return an access token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password", "password_confirmation", "role_id"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "password123"
+                  },
+                  "password_confirmation": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "password123"
+                  },
+                  "role_id": {
+                    "type": "integer",
+                    "example": 3
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful registration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "token": {
+                          "type": "string",
+                          "example": "1|abcdefghijklmnopqrstuvwxyz123456"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Registration successful."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Validation Error."
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User logout",
+        "description": "Logout the authenticated user and revoke the access token",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Successful logout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logout successful."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthenticated."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/user": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get authenticated user",
+        "description": "Return the authenticated user's information",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User retrieved successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthenticated."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Send password reset link",
+        "description": "Send a password reset link to the user's email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset link sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Password reset link sent to your email."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Validation Error."
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Reset user password",
+        "description": "Reset the user's password using the reset token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token", "email", "password", "password_confirmation"],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "example": "abcdefghijklmnopqrstuvwxyz123456"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "newpassword123"
+                  },
+                  "password_confirmation": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "newpassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Password reset successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error or Invalid Token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Validation Error."
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auditions": {
       "get": {
         "tags": ["Auditions"],
@@ -348,16 +880,6 @@
               "type": "string",
               "enum": ["created_at", "movie_title", "role", "status"]
             }
-          },
-          {
-            "name": "sort_order",
-            "in": "query",
-            "description": "Sort order",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": ["asc", "desc"]
-            }
           }
         ],
         "responses": {
@@ -373,64 +895,9 @@
                       "example": true
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "current_page": {
-                          "type": "integer"
-                        },
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/Audition"
-                          }
-                        },
-                        "first_page_url": {
-                          "type": "string"
-                        },
-                        "from": {
-                          "type": "integer"
-                        },
-                        "last_page": {
-                          "type": "integer"
-                        },
-                        "last_page_url": {
-                          "type": "string"
-                        },
-                        "links": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "url": {
-                                "type": "string"
-                              },
-                              "label": {
-                                "type": "string"
-                              },
-                              "active": {
-                                "type": "boolean"
-                              }
-                            }
-                          }
-                        },
-                        "next_page_url": {
-                          "type": "string"
-                        },
-                        "path": {
-                          "type": "string"
-                        },
-                        "per_page": {
-                          "type": "integer"
-                        },
-                        "prev_page_url": {
-                          "type": "string"
-                        },
-                        "to": {
-                          "type": "integer"
-                        },
-                        "total": {
-                          "type": "integer"
-                        }
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Audition"
                       }
                     },
                     "message": {
@@ -453,14 +920,15 @@
       "post": {
         "tags": ["Auditions"],
         "summary": "Store a new audition",
-        "description": "Creates a new audition for the authenticated user",
+        "description": "Creates a new audition",
         "security": [{"bearerAuth": []}],
         "requestBody": {
           "required": true,
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
                 "type": "object",
+                "required": ["movie_id", "role", "applicant_name"],
                 "properties": {
                   "movie_id": {
                     "type": "integer",
@@ -474,13 +942,16 @@
                     "type": "string",
                     "example": "John Doe"
                   },
+                  "uploaded_videos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "http://example.com/storage/audition_videos/video.mp4"
+                    }
+                  },
                   "notes": {
                     "type": "string",
                     "example": "Experienced actor with 5 years in the industry"
-                  },
-                  "uploaded_videos": {
-                    "type": "string",
-                    "format": "binary"
                   }
                 }
               }
@@ -530,7 +1001,7 @@
       "get": {
         "tags": ["Auditions"],
         "summary": "Get audition information",
-        "description": "Returns audition data for the authenticated user",
+        "description": "Returns audition data",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -584,7 +1055,7 @@
       "put": {
         "tags": ["Auditions"],
         "summary": "Update existing audition",
-        "description": "Updates an audition for the authenticated user",
+        "description": "Updates an audition",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -612,9 +1083,21 @@
                     "type": "string",
                     "example": "John Doe"
                   },
+                  "uploaded_videos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "http://example.com/storage/audition_videos/video.mp4"
+                    }
+                  },
                   "notes": {
                     "type": "string",
-                    "example": "Updated notes"
+                    "example": "Experienced actor with 5 years in the industry"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["pending", "viewed", "shortlisted", "rejected"],
+                    "example": "viewed"
                   }
                 }
               }
@@ -665,7 +1148,7 @@
       "delete": {
         "tags": ["Auditions"],
         "summary": "Delete audition",
-        "description": "Deletes an audition for the authenticated user",
+        "description": "Deletes an audition",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -716,122 +1199,9 @@
     },
     "/movies": {
       "get": {
-        "tags": ["Movies"],
-        "summary": "Get list of movies",
-        "description": "Returns list of movies",
-        "security": [{"bearerAuth": []}],
-        "parameters": [
-          {
-            "name": "genre",
-            "in": "query",
-            "description": "Filter by genre",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "description": "Filter by status",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": ["active", "inactive", "upcoming"]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Movie"
-                      }
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Movies retrieved successfully."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthenticated"
-          }
-        }
-      }
-    },
-    "/movies/{id}": {
-      "get": {
-        "tags": ["Movies"],
-        "summary": "Get movie information",
-        "description": "Returns movie data",
-        "security": [{"bearerAuth": []}],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Movie id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/Movie"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Movie retrieved successfully."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthenticated"
-          },
-          "404": {
-            "description": "Movie not found"
-          }
-        }
-      }
-    },
-    "/admin/movies": {
-      "get": {
-        "tags": ["Admin Movies"],
-        "summary": "Get list of movies (Admin)",
-        "description": "Returns list of all movies for admin",
+        "tags": ["Unified Movies"],
+        "summary": "Get list of movies based on user role",
+        "description": "Returns list of movies based on the authenticated user's role",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -890,9 +1260,9 @@
         }
       },
       "post": {
-        "tags": ["Admin Movies"],
-        "summary": "Store a new movie (Admin)",
-        "description": "Creates a new movie",
+        "tags": ["Unified Movies"],
+        "summary": "Store a new movie",
+        "description": "Creates a new movie - only for users with manage_movies permission",
         "security": [{"bearerAuth": []}],
         "requestBody": {
           "required": true,
@@ -900,15 +1270,24 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["title", "genre", "end_date", "director", "status"],
+                "required": ["title", "director", "release_date", "genre", "status"],
                 "properties": {
                   "title": {
                     "type": "string",
                     "example": "Inception"
                   },
-                  "description": {
+                  "director": {
                     "type": "string",
-                    "example": "A thief who steals corporate secrets..."
+                    "example": "Christopher Nolan"
+                  },
+                  "producer": {
+                    "type": "string",
+                    "example": "Emma Thomas"
+                  },
+                  "release_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-12-31"
                   },
                   "genre": {
                     "type": "array",
@@ -917,47 +1296,17 @@
                       "example": "Sci-Fi"
                     }
                   },
-                  "end_date": {
-                    "type": "string",
-                    "format": "date",
-                    "example": "2025-12-31"
-                  },
-                  "director": {
-                    "type": "string",
-                    "example": "Christopher Nolan"
-                  },
                   "budget": {
                     "type": "number",
                     "example": 160000000
                   },
+                  "description": {
+                    "type": "string",
+                    "example": "A thief who steals corporate secrets..."
+                  },
                   "status": {
                     "type": "string",
-                    "enum": ["active", "inactive", "upcoming"],
                     "example": "active"
-                  },
-                  "roles": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "role_type": {
-                          "type": "string",
-                          "example": "Lead Actor"
-                        },
-                        "gender": {
-                          "type": "string",
-                          "example": "Male"
-                        },
-                        "age_range": {
-                          "type": "string",
-                          "example": "25-35"
-                        },
-                        "dialogue_sample": {
-                          "type": "string",
-                          "example": "Sample dialogue..."
-                        }
-                      }
-                    }
                   }
                 }
               }
@@ -1003,11 +1352,11 @@
         }
       }
     },
-    "/admin/movies/{id}": {
+    "/movies/{id}": {
       "get": {
-        "tags": ["Admin Movies"],
-        "summary": "Get movie information (Admin)",
-        "description": "Returns movie data with roles",
+        "tags": ["Unified Movies"],
+        "summary": "Get movie information",
+        "description": "Returns movie data based on the authenticated user's role",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1059,9 +1408,9 @@
         }
       },
       "put": {
-        "tags": ["Admin Movies"],
-        "summary": "Update existing movie (Admin)",
-        "description": "Updates a movie",
+        "tags": ["Unified Movies"],
+        "summary": "Update existing movie",
+        "description": "Updates a movie - only for users with manage_movies permission",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1080,15 +1429,23 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["title", "genre", "end_date", "director", "status"],
                 "properties": {
                   "title": {
                     "type": "string",
                     "example": "Inception"
                   },
-                  "description": {
+                  "director": {
                     "type": "string",
-                    "example": "A thief who steals corporate secrets..."
+                    "example": "Christopher Nolan"
+                  },
+                  "producer": {
+                    "type": "string",
+                    "example": "Emma Thomas"
+                  },
+                  "release_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-12-31"
                   },
                   "genre": {
                     "type": "array",
@@ -1097,55 +1454,17 @@
                       "example": "Sci-Fi"
                     }
                   },
-                  "end_date": {
-                    "type": "string",
-                    "format": "date",
-                    "example": "2025-12-31"
-                  },
-                  "director": {
-                    "type": "string",
-                    "example": "Christopher Nolan"
-                  },
                   "budget": {
                     "type": "number",
                     "example": 160000000
                   },
+                  "description": {
+                    "type": "string",
+                    "example": "A thief who steals corporate secrets..."
+                  },
                   "status": {
                     "type": "string",
-                    "enum": ["active", "inactive", "upcoming"],
                     "example": "active"
-                  },
-                  "roles": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "role_type": {
-                          "type": "string",
-                          "example": "Lead Actor"
-                        },
-                        "gender": {
-                          "type": "string",
-                          "example": "Male"
-                        },
-                        "age_range": {
-                          "type": "string",
-                          "example": "25-35"
-                        },
-                        "dialogue_sample": {
-                          "type": "string",
-                          "example": "Sample dialogue..."
-                        },
-                        "deleted": {
-                          "type": "boolean",
-                          "example": false
-                        }
-                      }
-                    }
                   }
                 }
               }
@@ -1194,9 +1513,9 @@
         }
       },
       "delete": {
-        "tags": ["Admin Movies"],
-        "summary": "Delete movie (Admin)",
-        "description": "Deletes a movie",
+        "tags": ["Unified Movies"],
+        "summary": "Delete movie",
+        "description": "Deletes a movie - only for users with manage_movies permission",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1245,11 +1564,11 @@
         }
       }
     },
-    "/admin/users": {
+    "/users": {
       "get": {
-        "tags": ["Admin Users"],
-        "summary": "Get list of users (Admin)",
-        "description": "Returns list of all users for admin",
+        "tags": ["Unified Users"],
+        "summary": "Get list of users based on user role",
+        "description": "Returns list of users based on the authenticated user's role and permissions",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1308,9 +1627,9 @@
         }
       },
       "post": {
-        "tags": ["Admin Users"],
-        "summary": "Store a new user (Admin)",
-        "description": "Creates a new user",
+        "tags": ["Unified Users"],
+        "summary": "Store a new user",
+        "description": "Creates a new user - only for users with manage_users permission",
         "security": [{"bearerAuth": []}],
         "requestBody": {
           "required": true,
@@ -1395,11 +1714,11 @@
         }
       }
     },
-    "/admin/users/{id}": {
+    "/users/{id}": {
       "get": {
-        "tags": ["Admin Users"],
-        "summary": "Get user information (Admin)",
-        "description": "Returns user data",
+        "tags": ["Unified Users"],
+        "summary": "Get user information",
+        "description": "Returns user data based on the authenticated user's permissions",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1451,9 +1770,9 @@
         }
       },
       "put": {
-        "tags": ["Admin Users"],
-        "summary": "Update existing user (Admin)",
-        "description": "Updates a user",
+        "tags": ["Unified Users"],
+        "summary": "Update existing user",
+        "description": "Updates a user - users can update their own profile, users with manage_users permission can update any user",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1472,7 +1791,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name", "email", "role_id"],
+                "required": ["name", "email"],
                 "properties": {
                   "name": {
                     "type": "string",
@@ -1547,9 +1866,9 @@
         }
       },
       "delete": {
-        "tags": ["Admin Users"],
-        "summary": "Delete user (Admin)",
-        "description": "Deletes a user",
+        "tags": ["Unified Users"],
+        "summary": "Delete user",
+        "description": "Deletes a user - only for users with manage_users permission",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1598,11 +1917,11 @@
         }
       }
     },
-    "/admin/roles": {
+    "/roles": {
       "get": {
-        "tags": ["Admin Roles"],
-        "summary": "Get list of roles (Admin)",
-        "description": "Returns list of all roles for admin",
+        "tags": ["Unified Roles"],
+        "summary": "Get list of roles",
+        "description": "Returns list of all roles - only for users with manage_roles permission",
         "security": [{"bearerAuth": []}],
         "responses": {
           "200": {
@@ -1640,9 +1959,9 @@
         }
       },
       "post": {
-        "tags": ["Admin Roles"],
-        "summary": "Store a new role (Admin)",
-        "description": "Creates a new role",
+        "tags": ["Unified Roles"],
+        "summary": "Store a new role",
+        "description": "Creates a new role - only for users with manage_roles permission",
         "security": [{"bearerAuth": []}],
         "requestBody": {
           "required": true,
@@ -1711,11 +2030,11 @@
         }
       }
     },
-    "/admin/roles/{id}": {
+    "/roles/{id}": {
       "get": {
-        "tags": ["Admin Roles"],
-        "summary": "Get role information (Admin)",
-        "description": "Returns role data",
+        "tags": ["Unified Roles"],
+        "summary": "Get role information",
+        "description": "Returns role data - only for users with manage_roles permission",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1767,9 +2086,9 @@
         }
       },
       "put": {
-        "tags": ["Admin Roles"],
-        "summary": "Update existing role (Admin)",
-        "description": "Updates a role",
+        "tags": ["Unified Roles"],
+        "summary": "Update existing role",
+        "description": "Updates a role - only for users with manage_roles permission",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1852,9 +2171,9 @@
         }
       },
       "delete": {
-        "tags": ["Admin Roles"],
-        "summary": "Delete role (Admin)",
-        "description": "Deletes a role",
+        "tags": ["Unified Roles"],
+        "summary": "Delete role",
+        "description": "Deletes a role - only for users with manage_roles permission",
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
@@ -1903,7 +2222,7 @@
         }
       }
     },
-    "/admin/settings": {
+    "/settings": {
       "get": {
         "tags": ["Admin Settings"],
         "summary": "Get system settings (Admin)",
@@ -2022,7 +2341,7 @@
         }
       }
     },
-    "/admin/profile": {
+    "/profile": {
       "get": {
         "tags": ["Admin Settings"],
         "summary": "Get admin profile",
@@ -2128,7 +2447,7 @@
         }
       }
     },
-    "/admin/profile/password": {
+    "/profile/password": {
       "put": {
         "tags": ["Admin Settings"],
         "summary": "Update admin password",

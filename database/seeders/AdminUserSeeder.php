@@ -18,12 +18,25 @@ class AdminUserSeeder extends Seeder
         $adminUser = User::where('email', 'rektech.uk@gmail.com')->first();
         
         if (!$adminUser) {
-            User::create([
+            // Get the Super Admin role
+            $superAdminRole = \App\Models\Role::where('name', 'Super Admin')->first();
+            
+            $adminUser = User::create([
                 'name' => 'Admin User',
                 'email' => 'rektech.uk@gmail.com',
                 'password' => Hash::make('RekTech@27'),
                 'email_verified_at' => now(),
+                'role_id' => $superAdminRole ? $superAdminRole->id : null,
             ]);
+        } else {
+            // If user exists but doesn't have a role, assign Super Admin role
+            if (!$adminUser->role_id) {
+                $superAdminRole = \App\Models\Role::where('name', 'Super Admin')->first();
+                if ($superAdminRole) {
+                    $adminUser->role_id = $superAdminRole->id;
+                    $adminUser->save();
+                }
+            }
         }
     }
 }

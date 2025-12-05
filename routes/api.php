@@ -34,12 +34,24 @@ Route::prefix('v1')->group(function () {
         ]); 
     })->name('api.health-check');
     
-    // Authentication routes would go here if needed
+    // Authentication routes
+    Route::prefix('auth')->group(function () {
+        Route::post('/login', [App\Http\Controllers\API\AuthController::class, 'login'])->name('api.auth.login');
+        Route::post('/register', [App\Http\Controllers\API\AuthController::class, 'register'])->name('api.auth.register');
+        Route::post('/forgot-password', [App\Http\Controllers\API\AuthController::class, 'forgotPassword'])->name('api.auth.forgot-password');
+        Route::post('/reset-password', [App\Http\Controllers\API\AuthController::class, 'resetPassword'])->name('api.auth.reset-password');
+    });
 });
 
 // Protected API routes (require authentication)
 Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    // Audition routes
+    // Authentication routes (protected)
+    Route::prefix('auth')->group(function () {
+        Route::post('/logout', [App\Http\Controllers\API\AuthController::class, 'logout'])->name('api.auth.logout');
+        Route::get('/user', [App\Http\Controllers\API\AuthController::class, 'user'])->name('api.auth.user');
+    });
+    
+    // Unified Audition routes
     Route::apiResource('auditions', App\Http\Controllers\API\AuditionController::class)->names([
         'index' => 'api.auditions.index',
         'store' => 'api.auditions.store',
@@ -48,8 +60,8 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
         'destroy' => 'api.auditions.destroy',
     ]);
     
-    // Movie routes
-    Route::apiResource('movies', App\Http\Controllers\API\MovieController::class)->names([
+    // Unified Movie routes
+    Route::apiResource('movies', App\Http\Controllers\API\Unified\MovieController::class)->names([
         'index' => 'api.movies.index',
         'store' => 'api.movies.store',
         'show' => 'api.movies.show',
@@ -57,44 +69,32 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
         'destroy' => 'api.movies.destroy',
     ]);
     
-    // Admin specific routes
-    Route::prefix('admin')->group(function () {
-        // Admin movie routes
-        Route::apiResource('movies', App\Http\Controllers\API\Admin\MovieController::class)->names([
-            'index' => 'api.admin.movies.index',
-            'store' => 'api.admin.movies.store',
-            'show' => 'api.admin.movies.show',
-            'update' => 'api.admin.movies.update',
-            'destroy' => 'api.admin.movies.destroy',
-        ]);
-        
-        // Admin user routes
-        Route::apiResource('users', App\Http\Controllers\API\Admin\UserController::class)->names([
-            'index' => 'api.admin.users.index',
-            'store' => 'api.admin.users.store',
-            'show' => 'api.admin.users.show',
-            'update' => 'api.admin.users.update',
-            'destroy' => 'api.admin.users.destroy',
-        ]);
-        
-        // Admin role routes
-        Route::apiResource('roles', App\Http\Controllers\API\Admin\RoleController::class)->names([
-            'index' => 'api.admin.roles.index',
-            'store' => 'api.admin.roles.store',
-            'show' => 'api.admin.roles.show',
-            'update' => 'api.admin.roles.update',
-            'destroy' => 'api.admin.roles.destroy',
-        ]);
-        
-        // Admin settings routes
-        Route::get('settings', [App\Http\Controllers\API\Admin\SettingController::class, 'index']);
-        Route::put('settings', [App\Http\Controllers\API\Admin\SettingController::class, 'update']);
-        
-        // Admin profile routes
-        Route::get('profile', [App\Http\Controllers\API\Admin\SettingController::class, 'profile']);
-        Route::put('profile', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfile']);
-        Route::put('profile/password', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfilePassword']);
-    });
+    // Unified User routes
+    Route::apiResource('users', App\Http\Controllers\API\Unified\UserController::class)->names([
+        'index' => 'api.users.index',
+        'store' => 'api.users.store',
+        'show' => 'api.users.show',
+        'update' => 'api.users.update',
+        'destroy' => 'api.users.destroy',
+    ]);
+    
+    // Unified Role routes
+    Route::apiResource('roles', App\Http\Controllers\API\Unified\RoleController::class)->names([
+        'index' => 'api.roles.index',
+        'store' => 'api.roles.store',
+        'show' => 'api.roles.show',
+        'update' => 'api.roles.update',
+        'destroy' => 'api.roles.destroy',
+    ]);
+    
+    // Settings routes
+    Route::get('settings', [App\Http\Controllers\API\Admin\SettingController::class, 'index']);
+    Route::put('settings', [App\Http\Controllers\API\Admin\SettingController::class, 'update']);
+    
+    // Profile routes
+    Route::get('profile', [App\Http\Controllers\API\Admin\SettingController::class, 'profile']);
+    Route::put('profile', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfile']);
+    Route::put('profile/password', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfilePassword']);
 });
 
 // User Gallery routes (public access)

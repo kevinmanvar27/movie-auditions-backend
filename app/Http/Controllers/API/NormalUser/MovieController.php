@@ -1,29 +1,28 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\NormalUser;
 
 use App\Http\Controllers\API\BaseAPIController as Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Movie;
 use App\Models\Role;
 
 /**
  * @OA\Tag(
- *     name="Movies",
- *     description="API Endpoints for Movies Management"
+ *     name="Normal User Movies",
+ *     description="API Endpoints for Movies Viewing by Normal Users"
  * )
  */
 class MovieController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/v1/movies",
-     *      operationId="getMoviesList",
-     *      tags={"Movies"},
+     *      path="/api/v1/normal-user/movies",
+     *      operationId="getNormalUserMoviesList",
+     *      tags={"Normal User Movies"},
      *      summary="Get list of movies",
-     *      description="Returns list of movies",
+     *      description="Returns list of movies for normal users",
      *      security={{"bearerAuth": {}}},
      *      @OA\Parameter(
      *          name="genre",
@@ -53,6 +52,10 @@ class MovieController extends Controller
      *      @OA\Response(
      *          response=401,
      *          description="Unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
      *      )
      *     )
      */
@@ -60,17 +63,10 @@ class MovieController extends Controller
     {
         $user = Auth::user();
         
-        // Check if user has permission to view movies
-        if (!$user->hasPermission('view_movies')) {
-            // Alternative check for users with role_id
-            if ($user->role_id) {
-                $role = $user->role()->first();
-                if (!$role || !$role->hasPermission('view_movies')) {
-                    return $this->sendError('You are not authorized to view movies.', [], 403);
-                }
-            } else {
-                return $this->sendError('You are not authorized to view movies.', [], 403);
-            }
+        // Ensure the user has the Normal User role
+        $normalUserRole = Role::where('name', 'Normal User')->first();
+        if (!$normalUserRole || $user->role_id !== $normalUserRole->id) {
+            return $this->sendError('You are not authorized to access this resource.', [], 403);
         }
         
         // Get filter values
@@ -98,11 +94,11 @@ class MovieController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/movies/{id}",
-     *      operationId="getMovieById",
-     *      tags={"Movies"},
+     *      path="/api/v1/normal-user/movies/{id}",
+     *      operationId="getNormalUserMovieById",
+     *      tags={"Normal User Movies"},
      *      summary="Get movie information",
-     *      description="Returns movie data",
+     *      description="Returns movie data for normal users",
      *      security={{"bearerAuth": {}}},
      *      @OA\Parameter(
      *          name="id",
@@ -129,6 +125,10 @@ class MovieController extends Controller
      *          description="Unauthenticated"
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Movie not found"
      *      )
@@ -138,17 +138,10 @@ class MovieController extends Controller
     {
         $user = Auth::user();
         
-        // Check if user has permission to view movies
-        if (!$user->hasPermission('view_movies')) {
-            // Alternative check for users with role_id
-            if ($user->role_id) {
-                $role = $user->role()->first();
-                if (!$role || !$role->hasPermission('view_movies')) {
-                    return $this->sendError('You are not authorized to view movies.', [], 403);
-                }
-            } else {
-                return $this->sendError('You are not authorized to view movies.', [], 403);
-            }
+        // Ensure the user has the Normal User role
+        $normalUserRole = Role::where('name', 'Normal User')->first();
+        if (!$normalUserRole || $user->role_id !== $normalUserRole->id) {
+            return $this->sendError('You are not authorized to access this resource.', [], 403);
         }
         
         // Load roles relationship

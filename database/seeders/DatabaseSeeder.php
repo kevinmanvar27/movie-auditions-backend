@@ -21,7 +21,9 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             MovieAuditionUserSeeder::class,
             AuditionSeeder::class,
-            SystemSettingsSeeder::class, // Add this line
+            SystemSettingsSeeder::class,
+            NotificationSeeder::class,
+            PermissionSeeder::class,
         ]);
     }
 }

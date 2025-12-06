@@ -48,6 +48,14 @@ class SettingController extends Controller
             // Razorpay keys
             'razorpay_key_id' => 'nullable|string',
             'razorpay_key_secret' => 'nullable|string',
+            // Firebase notification settings
+            'firebase_api_key' => 'nullable|string',
+            'firebase_auth_domain' => 'nullable|string',
+            'firebase_project_id' => 'nullable|string',
+            'firebase_storage_bucket' => 'nullable|string',
+            'firebase_messaging_sender_id' => 'nullable|string',
+            'firebase_app_id' => 'nullable|string',
+            'firebase_measurement_id' => 'nullable|string',
         ], [
             'video_upload_limit.max' => 'The video upload limit cannot exceed the server limit of ' . $phpUploadLimitMb . 'MB.',
             'logo.image' => 'The logo must be an image.',
@@ -146,9 +154,8 @@ class SettingController extends Controller
             unset($validated['profile_photo']);
         }
 
-        // Update the user using fill and save
-        $user->fill($validated);
-        $user->save();
+        // Update the user using the update method
+        $user->update($validated);
 
         return redirect()->route('admin.profile')->with('success', 'Profile updated successfully!');
     }

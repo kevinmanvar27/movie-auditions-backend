@@ -57,6 +57,9 @@
                 <button data-tab="payment" class="tab-button text-theme-text-secondary hover:text-theme-text whitespace-nowrap py-3 px-4 border-b-2 font-medium text-base rounded-t-lg transition-colors duration-200">
                     Payment
                 </button>
+                <button data-tab="notification" class="tab-button text-theme-text-secondary hover:text-theme-text whitespace-nowrap py-3 px-4 border-b-2 font-medium text-base rounded-t-lg transition-colors duration-200">
+                    Notification
+                </button>
             </nav>
         </div>
 
@@ -261,6 +264,79 @@
                             <div class="mt-6">
                                 <button type="submit" class="btn btn-primary px-4 py-2" data-loading>
                                     <span class="loading-text ">Save Payment Settings</span>
+                                    <span class="loading-spinner hidden">
+                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notification Settings Tab -->
+            <div id="tab-notification" class="tab-content hidden">
+                <div class="space-y-6">
+                    <!-- Firebase Configuration Section -->
+                    <div class="bg-theme-surface rounded-lg shadow border border-theme-border overflow-hidden">
+                        <div class="px-4 py-3 md:px-6 md:py-4 border-b border-theme-border">
+                            <h2 class="text-lg font-medium text-theme-text">Firebase Configuration</h2>
+                            <p class="text-sm text-theme-text-secondary mt-1">Configure Firebase API keys for push notifications</p>
+                        </div>
+                        <form method="POST" action="{{ route('admin.settings.update') }}" class="p-4 md:p-6">
+                            @csrf
+                            @method('PUT')
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <label for="firebase_api_key" class="block text-sm font-medium text-theme-text">Firebase API Key</label>
+                                    <input type="password" name="firebase_api_key" id="firebase_api_key" class="input-field mt-1 block w-full" value="{{ $settings['firebase_api_key'] ?? '' }}">
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Your Firebase API key for push notifications</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="firebase_auth_domain" class="block text-sm font-medium text-theme-text">Firebase Auth Domain</label>
+                                    <input type="text" name="firebase_auth_domain" id="firebase_auth_domain" class="input-field mt-1 block w-full" value="{{ $settings['firebase_auth_domain'] ?? '' }}">
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Your Firebase Auth Domain</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="firebase_project_id" class="block text-sm font-medium text-theme-text">Firebase Project ID</label>
+                                    <input type="text" name="firebase_project_id" id="firebase_project_id" class="input-field mt-1 block w-full" value="{{ $settings['firebase_project_id'] ?? '' }}">
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Your Firebase Project ID</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="firebase_storage_bucket" class="block text-sm font-medium text-theme-text">Firebase Storage Bucket</label>
+                                    <input type="text" name="firebase_storage_bucket" id="firebase_storage_bucket" class="input-field mt-1 block w-full" value="{{ $settings['firebase_storage_bucket'] ?? '' }}">
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Your Firebase Storage Bucket</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="firebase_messaging_sender_id" class="block text-sm font-medium text-theme-text">Firebase Messaging Sender ID</label>
+                                    <input type="text" name="firebase_messaging_sender_id" id="firebase_messaging_sender_id" class="input-field mt-1 block w-full" value="{{ $settings['firebase_messaging_sender_id'] ?? '' }}">
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Your Firebase Messaging Sender ID</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="firebase_app_id" class="block text-sm font-medium text-theme-text">Firebase App ID</label>
+                                    <input type="text" name="firebase_app_id" id="firebase_app_id" class="input-field mt-1 block w-full" value="{{ $settings['firebase_app_id'] ?? '' }}">
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Your Firebase App ID</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="firebase_measurement_id" class="block text-sm font-medium text-theme-text">Firebase Measurement ID</label>
+                                    <input type="text" name="firebase_measurement_id" id="firebase_measurement_id" class="input-field mt-1 block w-full" value="{{ $settings['firebase_measurement_id'] ?? '' }}">
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Your Firebase Measurement ID</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <button type="submit" class="btn btn-primary px-4 py-2" data-loading>
+                                    <span class="loading-text ">Save Notification Settings</span>
                                     <span class="loading-spinner hidden">
                                         <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

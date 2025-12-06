@@ -102,9 +102,16 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::put('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');
     });
     
+    // Notification Routes - Require manage_notifications permission
+    Route::middleware('permission:manage_notifications')->group(function () {
+        Route::get('/notifications', [App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::get('/notifications/create', [App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('admin.notifications.create');
+        Route::post('/notifications/send', [App\Http\Controllers\Admin\NotificationController::class, 'send'])->name('admin.notifications.send');
+        Route::get('/notifications/{id}', [App\Http\Controllers\Admin\NotificationController::class, 'show'])->name('admin.notifications.show');
+    });
+    
     // Profile Routes - Available to all authenticated users
     Route::get('/profile', [App\Http\Controllers\Admin\SettingController::class, 'profile'])->name('admin.profile');
     Route::put('/profile', [App\Http\Controllers\Admin\SettingController::class, 'updateProfile'])->name('admin.profile.update');
     Route::put('/profile/password', [App\Http\Controllers\Admin\SettingController::class, 'updateProfilePassword'])->name('admin.profile.update-password');
 });
-

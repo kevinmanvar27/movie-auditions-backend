@@ -152,7 +152,16 @@ class MovieController extends Controller
      *              ),
      *              @OA\Property(property="budget", type="number", format="float", example=160000000.00),
      *              @OA\Property(property="description", type="string", example="A thief who steals corporate secrets..."),
-     *              @OA\Property(property="status", type="string", example="active")
+     *              @OA\Property(property="status", type="string", example="active"),
+     *              @OA\Property(property="roles", type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(property="role_type", type="string", example="Lead Actor"),
+     *                      @OA\Property(property="gender", type="string", example="Male"),
+     *                      @OA\Property(property="age_range", type="string", example="25-35"),
+     *                      @OA\Property(property="dialogue_sample", type="string", example="Sample dialogue for this role")
+     *                  )
+     *              )
      *          )
      *      ),
      *      @OA\Response(
@@ -207,7 +216,13 @@ class MovieController extends Controller
             'genre.*' => 'string|max:50',
             'budget' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
-            'status' => 'required|string|in:active,inactive,upcoming'
+            'status' => 'required|string|in:active,inactive,upcoming',
+            // Role fields validation
+            'roles' => 'nullable|array',
+            'roles.*.role_type' => 'nullable|string|max:50',
+            'roles.*.gender' => 'nullable|string|max:20',
+            'roles.*.age_range' => 'nullable|string|max:20',
+            'roles.*.dialogue_sample' => 'nullable|string|max:1000',
         ]);
         
         if ($validator->fails()) {
@@ -228,7 +243,18 @@ class MovieController extends Controller
             return $this->sendError('Error occurred while creating movie.');
         }
         
-        return $this->sendResponse($movie->fresh(), 'Movie created successfully.');
+        // Process roles if provided
+        if ($request->has('roles') && is_array($request->roles)) {
+            foreach ($request->roles as $roleData) {
+                // Only save if role data is not empty
+                if (!empty(array_filter($roleData))) {
+                    $role = new \App\Models\MovieRole($roleData);
+                    $movie->roles()->save($role);
+                }
+            }
+        }
+        
+        return $this->sendResponse($movie->fresh()->load('roles'), 'Movie created successfully.');
     }
 
     /**
@@ -350,7 +376,17 @@ class MovieController extends Controller
      *              ),
      *              @OA\Property(property="budget", type="number", format="float", example=160000000.00),
      *              @OA\Property(property="description", type="string", example="A thief who steals corporate secrets..."),
-     *              @OA\Property(property="status", type="string", example="active")
+     *              @OA\Property(property="status", type="string", example="active"),
+     *              @OA\Property(property="roles", type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(property="id", type="integer", example=1),
+     *                      @OA\Property(property="role_type", type="string", example="Lead Actor"),
+     *                      @OA\Property(property="gender", type="string", example="Male"),
+     *                      @OA\Property(property="age_range", type="string", example="25-35"),
+     *                      @OA\Property(property="dialogue_sample", type="string", example="Sample dialogue for this role")
+     *                  )
+     *              )
      *          )
      *      ),
      *      @OA\Response(
@@ -411,7 +447,14 @@ class MovieController extends Controller
             'genre.*' => 'string|max:50',
             'budget' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
-            'status' => 'sometimes|string|in:active,inactive,upcoming'
+            'status' => 'sometimes|string|in:active,inactive,upcoming',
+            // Role fields validation
+            'roles' => 'nullable|array',
+            'roles.*.id' => 'nullable|exists:movie_roles,id',
+            'roles.*.role_type' => 'nullable|string|max:50',
+            'roles.*.gender' => 'nullable|string|max:20',
+            'roles.*.age_range' => 'nullable|string|max:20',
+            'roles.*.dialogue_sample' => 'nullable|string|max:1000',
         ]);
         
         if ($validator->fails()) {
@@ -450,7 +493,38 @@ class MovieController extends Controller
             return $this->sendError('Error occurred while updating movie.');
         }
         
-        return $this->sendResponse($movie->fresh(), 'Movie updated successfully.');
+        // Process roles if provided
+        if ($request->has('roles') && is_array($request->roles)) {
+            $processedRoleIds = [];
+            
+            foreach ($request->roles as $roleData) {
+                // Check if role data is not empty (excluding id field)
+                $filteredRoleData = array_filter($roleData, function($value, $key) {
+                    return $key !== 'id' && !is_null($value);
+                }, ARRAY_FILTER_USE_BOTH);
+                
+                if (!empty($filteredRoleData)) {
+                    if (isset($roleData['id'])) {
+                        // Update existing role
+                        $processedRoleIds[] = $roleData['id'];
+                        $role = \App\Models\MovieRole::findOrFail($roleData['id']);
+                        $role->update($roleData);
+                    } else {
+                        // Create new role
+                        $role = new \App\Models\MovieRole($roleData);
+                        $movie->roles()->save($role);
+                    }
+                } elseif (isset($roleData['id'])) {
+                    // If only id is present and no other data, mark for cleanup
+                    $processedRoleIds[] = $roleData['id'];
+                }
+            }
+            
+            // Delete roles that were not included in the update
+            $movie->roles()->whereNotIn('id', $processedRoleIds)->delete();
+        }
+        
+        return $this->sendResponse($movie->fresh()->load('roles'), 'Movie updated successfully.');
     }
 
     /**

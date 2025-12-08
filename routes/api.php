@@ -40,6 +40,15 @@ Route::prefix('v1')->group(function () {
         Route::post('/register', [App\Http\Controllers\API\AuthController::class, 'register'])->name('api.auth.register');
         Route::post('/forgot-password', [App\Http\Controllers\API\AuthController::class, 'forgotPassword'])->name('api.auth.forgot-password');
         Route::post('/reset-password', [App\Http\Controllers\API\AuthController::class, 'resetPassword'])->name('api.auth.reset-password');
+        
+        // OTP routes for registration
+        Route::post('/send-registration-otp', [App\Http\Controllers\API\OTPController::class, 'sendRegistrationOTP']);
+        Route::post('/verify-registration-otp', [App\Http\Controllers\API\OTPController::class, 'verifyRegistrationOTP']);
+        
+        // OTP routes for password reset
+        Route::post('/send-password-reset-otp', [App\Http\Controllers\API\OTPController::class, 'sendPasswordResetOTP']);
+        Route::post('/verify-password-reset-otp', [App\Http\Controllers\API\OTPController::class, 'verifyPasswordResetOTP']);
+        Route::post('/reset-password-otp', [App\Http\Controllers\API\OTPController::class, 'resetPassword']);
     });
 });
 

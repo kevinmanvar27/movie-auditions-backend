@@ -31,6 +31,9 @@ class User extends Authenticatable
         'image_gallery',
         'date_of_birth',
         'gender',
+        'otp_code',
+        'otp_expires_at',
+        'is_verified',
     ];
 
     /**
@@ -41,6 +44,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'otp_code',
     ];
 
     /**
@@ -54,6 +58,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'image_gallery' => 'array',
+            'otp_expires_at' => 'datetime',
         ];
     }
     

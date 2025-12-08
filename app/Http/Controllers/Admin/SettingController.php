@@ -41,6 +41,7 @@ class SettingController extends Controller
             // Payment settings
             'casting_director_amount' => 'nullable|numeric|min:0',
             'casting_director_percentage' => 'nullable|numeric|min:0|max:100',
+            'casting_director_max_amount' => 'nullable|numeric|min:0',
             'audition_user_amount' => 'nullable|numeric|min:0',
             // Payment requirement settings
             'casting_director_payment_required' => 'nullable|in:0,1',
@@ -67,6 +68,8 @@ class SettingController extends Controller
             'casting_director_percentage.numeric' => 'The casting director percentage must be a valid number.',
             'casting_director_percentage.min' => 'The casting director percentage must be zero or greater.',
             'casting_director_percentage.max' => 'The casting director percentage cannot exceed 100%.',
+            'casting_director_max_amount.numeric' => 'The casting director maximum amount must be a valid number.',
+            'casting_director_max_amount.min' => 'The casting director maximum amount must be zero or greater.',
             'audition_user_amount.numeric' => 'The audition user amount must be a valid number.',
             'audition_user_amount.min' => 'The audition user amount must be zero or greater.',
             // Payment requirement validation messages

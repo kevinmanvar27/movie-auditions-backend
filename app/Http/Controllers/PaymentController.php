@@ -54,6 +54,14 @@ class PaymentController extends Controller
                     'key_id_value' => $key ?? 'NULL',
                     'key_secret_value' => $secret ? 'SET ('.strlen($secret).' chars)' : 'NOT SET'
                 ]);
+                
+                // Provide more specific error messages
+                if (empty($key) || strlen($key) <= 5) {
+                    Log::warning('Razorpay Key ID is missing or invalid');
+                }
+                if (empty($secret) || strlen($secret) <= 5) {
+                    Log::warning('Razorpay Key Secret is missing or invalid');
+                }
             }
         } catch (\Exception $e) {
             Log::error('Error retrieving Razorpay keys: ' . $e->getMessage(), [
@@ -81,7 +89,7 @@ class PaymentController extends Controller
                 Log::error('Razorpay API not initialized for audition payment');
                 return response()->json([
                     'success' => false,
-                    'message' => 'Payment gateway not properly configured. Please contact administrator.'
+                    'message' => 'Payment gateway not properly configured. Please ensure Razorpay API keys are set in the admin settings.'
                 ], 500);
             }
             
@@ -164,6 +172,15 @@ class PaymentController extends Controller
             ]);
         } catch (\Razorpay\Api\Errors\Error $e) {
             Log::error('Razorpay API Error: ' . $e->getMessage() . ' (Error Code: ' . $e->getCode() . ')');
+            
+            // Check if it's an amount limit error
+            if (strpos($e->getMessage(), 'Amount exceeds maximum amount allowed') !== false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment amount exceeds the maximum allowed limit. Please contact support.'
+                ], 400);
+            }
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Payment service temporarily unavailable. Please try again later.'
@@ -193,7 +210,7 @@ class PaymentController extends Controller
                 Log::error('Razorpay API not initialized for movie payment');
                 return response()->json([
                     'success' => false,
-                    'message' => 'Payment gateway not properly configured. Please contact administrator.'
+                    'message' => 'Payment gateway not properly configured. Please ensure Razorpay API keys are set in the admin settings.'
                 ], 500);
             }
             
@@ -279,6 +296,15 @@ class PaymentController extends Controller
             ]);
         } catch (\Razorpay\Api\Errors\Error $e) {
             Log::error('Razorpay API Error: ' . $e->getMessage() . ' (Error Code: ' . $e->getCode() . ')');
+            
+            // Check if it's an amount limit error
+            if (strpos($e->getMessage(), 'Amount exceeds maximum amount allowed') !== false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment amount exceeds the maximum allowed limit. Please contact support.'
+                ], 400);
+            }
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Payment service temporarily unavailable. Please try again later.'

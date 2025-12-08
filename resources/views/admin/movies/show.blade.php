@@ -36,7 +36,7 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-theme-text">Budget ( In CR )</label>
-                        <p class="mt-1 text-theme-text-secondary">{{ $movie->budget ? '₹' . number_format($movie->budget, 2) : 'Not specified' }}</p>
+                        <p class="mt-1 text-theme-text-secondary">{{ $movie->budget ? '₹' . number_format($movie->budget * 10000000, 2) . ' (' . number_format($movie->budget, 2) . ' CR)' : 'Not specified' }}</p>
                     </div>
                     
                     <div>

@@ -51,6 +51,11 @@ class SystemSettingsSeeder extends Seeder
                 'value' => null,
                 'description' => 'Fixed payment amount for audition users'
             ],
+            [
+                'key' => 'casting_director_max_amount',
+                'value' => '5000000',
+                'description' => 'Maximum payment amount for casting directors (in rupees)'
+            ],
             // Razorpay settings
             [
                 'key' => 'razorpay_key_id',

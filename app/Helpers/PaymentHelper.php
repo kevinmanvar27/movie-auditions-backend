@@ -73,10 +73,14 @@ if (!function_exists('get_casting_director_amount')) {
 if (!function_exists('calculate_casting_director_payment')) {
     /**
      * Calculate the casting director payment amount based on the higher value
-     * between fixed amount and budget percentage
+     * between fixed amount and budget percentage.
+     * 
+     * The budget is interpreted in crores (e.g., entering "12" means 12 crores = ₹120,000,000).
+     * The system compares the fixed amount with the percentage of the total budget and uses whichever is greater.
+     * Payment amount is capped at the configured maximum amount to comply with Razorpay limits.
      *
-     * @param float|null $budget The movie budget
-     * @return float
+     * @param float|null $budget The movie budget in crores
+     * @return float The calculated payment amount in rupees (capped at ₹50,00,000)
      */
     function calculate_casting_director_payment($budget = null)
     {
@@ -98,20 +102,29 @@ if (!function_exists('calculate_casting_director_payment')) {
                 return $fixedAmount;
             }
             
-            // Calculate percentage amount
-            $percentageAmount = ($budget * $percentage) / 100;
+            // Convert budget from crores to actual amount (1 crore = 10,000,000)
+            $budgetInRupees = $budget * 10000000;
+            
+            // Calculate percentage amount based on the budget in rupees
+            $percentageAmount = ($budgetInRupees * $percentage) / 100;
             
             // Return the higher value between fixed amount and percentage amount
             // But if fixed amount is 0, return percentage amount
             if ($fixedAmount <= 0) {
-                return $percentageAmount;
+                // Cap the percentage amount at the configured maximum to comply with Razorpay limits
+                $maxAmount = get_casting_director_max_amount();
+                return min($percentageAmount, $maxAmount);
             }
             
-            return max($fixedAmount, $percentageAmount);
+            // Cap the maximum amount at the configured maximum to comply with Razorpay limits
+            $maxAmount = get_casting_director_max_amount();
+            $finalAmount = max($fixedAmount, $percentageAmount);
+            return min($finalAmount, $maxAmount);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error calculating casting director payment: ' . $e->getMessage());
             // Fallback to fixed amount if calculation fails
-            return get_casting_director_amount();
+            $maxAmount = get_casting_director_max_amount();
+            return min(get_casting_director_amount(), $maxAmount);
         }
     }
 }
@@ -148,6 +161,23 @@ if (!function_exists('is_casting_director_payment_required')) {
             return $isRequired == '1';
         } catch (\Exception $e) {
             return false;
+        }
+    }
+}
+
+if (!function_exists('get_casting_director_max_amount')) {
+    /**
+     * Get the casting director maximum payment amount from settings
+     *
+     * @return float
+     */
+    function get_casting_director_max_amount()
+    {
+        try {
+            $maxAmount = DB::table('system_settings')->where('key', 'casting_director_max_amount')->value('value');
+            return $maxAmount ? (float)$maxAmount : 5000000; // Default to ₹50,00,000 if not set
+        } catch (\Exception $e) {
+            return 5000000; // Default to ₹50,00,000 if error occurs
         }
     }
 }

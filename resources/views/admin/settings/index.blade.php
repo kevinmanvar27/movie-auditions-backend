@@ -143,12 +143,18 @@
                                     <label for="razorpay_key_id" class="block text-sm font-medium text-theme-text">Razorpay Key ID</label>
                                     <input type="text" name="razorpay_key_id" id="razorpay_key_id" class="input-field mt-1 block w-full" value="{{ $settings['razorpay_key_id'] ?? '' }}">
                                     <p class="mt-1 text-sm text-theme-text-secondary">Your Razorpay Key ID for payment processing</p>
+                                    @if(empty($settings['razorpay_key_id']))
+                                        <p class="mt-1 text-sm text-red-500">⚠️ Razorpay Key ID is missing. Payment gateway will not work without this.</p>
+                                    @endif
                                 </div>
                                 
                                 <div>
                                     <label for="razorpay_key_secret" class="block text-sm font-medium text-theme-text">Razorpay Key Secret</label>
                                     <input type="password" name="razorpay_key_secret" id="razorpay_key_secret" class="input-field mt-1 block w-full" value="{{ $settings['razorpay_key_secret'] ?? '' }}">
                                     <p class="mt-1 text-sm text-theme-text-secondary">Your Razorpay Key Secret for payment processing</p>
+                                    @if(empty($settings['razorpay_key_secret']))
+                                        <p class="mt-1 text-sm text-red-500">⚠️ Razorpay Key Secret is missing. Payment gateway will not work without this.</p>
+                                    @endif
                                 </div>
                             </div>
                             
@@ -200,7 +206,7 @@
                                 </div>
                                 
                                 <div>
-                                    <label for="casting_director_amount" class="block text-sm font-medium text-theme-text">Fixed Amount ($)</label>
+                                    <label for="casting_director_amount" class="block text-sm font-medium text-theme-text">Fixed Amount (₹)</label>
                                     <input type="number" name="casting_director_amount" id="casting_director_amount" class="input-field mt-1 block w-full" value="{{ $settings['casting_director_amount'] ?? '' }}" min="0" step="0.01">
                                     <p class="mt-1 text-sm text-theme-text-secondary">Set a fixed payment amount for casting directors</p>
                                 </div>
@@ -209,6 +215,13 @@
                                     <label for="casting_director_percentage" class="block text-sm font-medium text-theme-text">Percentage (%)</label>
                                     <input type="number" name="casting_director_percentage" id="casting_director_percentage" class="input-field mt-1 block w-full" value="{{ $settings['casting_director_percentage'] ?? '' }}" min="0" max="100" step="0.01">
                                     <p class="mt-1 text-sm text-theme-text-secondary">Set a percentage of earnings for casting directors</p>
+                                </div>
+                                
+                                <!-- Add the new maximum amount field here -->
+                                <div>
+                                    <label for="casting_director_max_amount" class="block text-sm font-medium text-theme-text">Maximum Payment Amount (₹)</label>
+                                    <input type="number" name="casting_director_max_amount" id="casting_director_max_amount" class="input-field mt-1 block w-full" value="{{ $settings['casting_director_max_amount'] ?? '5000000' }}" min="0" step="1">
+                                    <p class="mt-1 text-sm text-theme-text-secondary">Set the maximum payment amount for casting directors (in rupees)</p>
                                 </div>
                             </div>
                             
@@ -255,7 +268,7 @@
                                 </div>
                                 
                                 <div>
-                                    <label for="audition_user_amount" class="block text-sm font-medium text-theme-text">Fixed Amount ($)</label>
+                                    <label for="audition_user_amount" class="block text-sm font-medium text-theme-text">Fixed Amount (₹)</label>
                                     <input type="number" name="audition_user_amount" id="audition_user_amount" class="input-field mt-1 block w-full" value="{{ $settings['audition_user_amount'] ?? '' }}" min="0" step="0.01">
                                     <p class="mt-1 text-sm text-theme-text-secondary">Set a fixed payment amount for audition users</p>
                                 </div>

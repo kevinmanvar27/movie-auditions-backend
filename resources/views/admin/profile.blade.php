@@ -90,7 +90,7 @@
                         @if($user->profile_photo)
                             <div class="mt-2">
                                 <span class="text-sm text-theme-text-secondary">Current photo:</span>
-                                <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="Profile Photo" class="mt-1 w-16 h-16 rounded-full object-cover">
+                                <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="Profile Photo" class="mt-1 rounded-full object-cover" style="width: 150px; height: 150px;">
                             </div>
                         @endif
                     </div>
@@ -126,7 +126,7 @@
             
             <div class="mb-4">
                 <label class="block text-sm font-medium text-theme-text mb-2">Gallery Preview</label>
-                <div id="gallery-preview" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div id="gallery-preview" class="gap-4">
                     <!-- Gallery images will be loaded here dynamically -->
                 </div>
             </div>
@@ -171,6 +171,30 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Custom styles for gallery */
+    #gallery-preview .group:hover .transition-opacity {
+        opacity: 1 !important;
+    }
+    
+    #gallery-preview .group .transition-opacity {
+        transition: opacity 0.3s ease-in;
+    }
+    
+    /* Fixed size for gallery items */
+    #gallery-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 150px);
+        gap: 1rem;
+        justify-content: start;
+    }
+    
+    #gallery-preview .gallery-item {
+        width: 150px;
+        height: 150px;
+    }
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -245,21 +269,23 @@
             
             images.forEach((imageUrl, index) => {
                 const imgContainer = document.createElement('div');
-                imgContainer.className = 'relative group';
+                imgContainer.className = 'relative group gallery-item';
                 imgContainer.innerHTML = `
-                    <img src="${imageUrl}" alt="Gallery Image" class="w-full h-32 object-cover rounded-lg cursor-pointer" onclick="openImageModal('${imageUrl}')">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                        <button type="button" class="text-white mx-1" onclick="event.stopPropagation(); deleteImage('${imageUrl}')" title="Delete">
+                    <div class="overflow-hidden rounded-lg w-full h-full">
+                        <img src="${imageUrl}" alt="Gallery Image" class="w-full h-full rounded-lg object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105" onclick="openImageModal('${imageUrl}')">
+                    </div>
+                    <div class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg p-2 w-full h-full">
+                        <button type="button" class="text-white hover:text-red-400 transition-colors" onclick="window.deleteImage('${imageUrl}')" title="Delete">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
                         </button>
-                        <button type="button" class="text-white mx-1" onclick="event.stopPropagation(); moveImage(${index}, 'up')" title="Move Up">
+                        <button type="button" class="text-white hover:text-blue-400 transition-colors" onclick="window.moveImage(${index}, 'up')" title="Move Up">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                             </svg>
                         </button>
-                        <button type="button" class="text-white mx-1" onclick="event.stopPropagation(); moveImage(${index}, 'down')" title="Move Down">
+                        <button type="button" class="text-white hover:text-blue-400 transition-colors" onclick="window.moveImage(${index}, 'down')" title="Move Down">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
@@ -271,15 +297,18 @@
         }
         
         // Function to delete an image
-        function deleteImage(imageUrl) {
+        window.deleteImage = function(imageUrl) {
             if (!confirm('Are you sure you want to delete this image?')) {
                 return;
             }
             
-            // Extract the image path from the URL
-            const imagePath = imageUrl.replace(window.location.origin + '/storage/', '');
+            // Extract the image path from the URL and decode it properly
+            const imagePath = decodeURIComponent(imageUrl.replace(window.location.origin + '/storage/', ''));
             
-            fetch(`/api/v1/users/{{ $user->id }}/gallery/${encodeURIComponent(imagePath)}`, {
+            // Encode the path properly for URL transmission
+            const encodedImagePath = encodeURIComponent(imagePath);
+            
+            fetch(`/api/v1/users/{{ $user->id }}/gallery/${encodedImagePath}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -302,7 +331,7 @@
         }
         
         // Function to move an image
-        function moveImage(index, direction) {
+        window.moveImage = function(index, direction) {
             // Get current gallery images
             fetch(`/api/v1/users/{{ $user->id }}/gallery`)
                 .then(response => response.json())

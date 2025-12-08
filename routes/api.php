@@ -116,7 +116,7 @@ Route::prefix('v1/users/{userId}/gallery')->group(function () {
     Route::get('/', [App\Http\Controllers\API\UserGalleryController::class, 'index'])->name('api.users.gallery.index');
     Route::post('/', [App\Http\Controllers\API\UserGalleryController::class, 'store'])->name('api.users.gallery.store');
     Route::put('/', [App\Http\Controllers\API\UserGalleryController::class, 'update'])->name('api.users.gallery.update');
-    Route::delete('/{imagePath}', [App\Http\Controllers\API\UserGalleryController::class, 'destroy'])->name('api.users.gallery.destroy');
+    Route::delete('/{imagePath}', [App\Http\Controllers\API\UserGalleryController::class, 'destroy'])->name('api.users.gallery.destroy')->where('imagePath', '.*');
 });
 
 // Swagger documentation route

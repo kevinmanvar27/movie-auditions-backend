@@ -329,27 +329,37 @@ class UserGalleryController extends Controller
         
         $gallery = $user->image_gallery ?? [];
         
-        // Decode the image path (it might be URL encoded)
+        // Properly decode the image path since it might be URL encoded
         $decodedImagePath = urldecode($imagePath);
         
-        // Remove the image from the gallery
-        $gallery = array_filter($gallery, function($image) use ($decodedImagePath) {
-            return $image !== $decodedImagePath;
+        // Check if the image exists in the gallery
+        $imageExists = false;
+        $updatedGallery = array_filter($gallery, function($image) use ($decodedImagePath, &$imageExists) {
+            if ($image === $decodedImagePath) {
+                $imageExists = true;
+                return false; // Remove this image
+            }
+            return true; // Keep other images
         });
         
         // Re-index array
-        $gallery = array_values($gallery);
+        $updatedGallery = array_values($updatedGallery);
+        
+        // If image was not found in gallery, return error
+        if (!$imageExists) {
+            return $this->sendError('Image not found in gallery.', [], 404);
+        }
         
         // Delete the file from storage
         Storage::disk('public')->delete($decodedImagePath);
         
-        $user->image_gallery = $gallery;
+        $user->image_gallery = $updatedGallery;
         $user->save();
         
         // Return full URLs for images
         $galleryWithUrls = array_map(function($image) {
             return url('storage/' . $image);
-        }, $gallery);
+        }, $updatedGallery);
         
         return $this->sendResponse([
             'gallery' => $galleryWithUrls

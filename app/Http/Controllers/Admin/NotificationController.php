@@ -85,15 +85,15 @@ class NotificationController extends Controller
      */
     private function sendFirebaseNotifications($users, $title, $message)
     {
-        // In a real implementation, we would:
-        // 1. Get device tokens for each user
-        // 2. Send the notification via Firebase
+        // Get users who have device tokens
+        $usersWithTokens = $users->filter(function ($user) {
+            return !empty($user->device_token);
+        });
         
-        // For demonstration, we'll just log that we're sending notifications
-        foreach ($users as $user) {
-            // Simulate sending to each user
+        // Send notifications to users with device tokens
+        foreach ($usersWithTokens as $user) {
             $this->firebaseService->sendToUser(
-                'sample_device_token_' . $user->id, // Placeholder device token
+                $user->device_token,
                 $title,
                 $message,
                 [
@@ -102,6 +102,9 @@ class NotificationController extends Controller
                 ]
             );
         }
+        
+        // For users without device tokens, we could send email notifications
+        // This would be implemented in a real application
     }
     
     /**

@@ -34,6 +34,7 @@ class User extends Authenticatable
         'otp_code',
         'otp_expires_at',
         'is_verified',
+        'device_token',
     ];
 
     /**

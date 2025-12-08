@@ -31,5 +31,18 @@ class Notification extends Model
     protected $casts = [
         'filters_applied' => 'array',
         'sent_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+    
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'sent_at',
+        'created_at',
+        'updated_at',
     ];
 }

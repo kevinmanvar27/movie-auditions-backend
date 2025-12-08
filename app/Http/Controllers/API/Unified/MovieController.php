@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Movie;
 use App\Models\User;
+use Carbon\Carbon;
 
 /**
  * @OA\Tag(
@@ -71,8 +72,36 @@ class MovieController extends Controller
         // Build query with filters
         $query = Movie::with('roles');
         
-        // Apply filters based on user role
+        // Check if user has permission to manage movies (admins and casting directors)
+        $canManageMovies = false;
         if ($user->hasPermission('manage_movies')) {
+            $canManageMovies = true;
+        } else {
+            // Alternative check for users with role_id
+            if ($user->role_id) {
+                $role = $user->role()->first();
+                if ($role && $role->hasPermission('manage_movies')) {
+                    $canManageMovies = true;
+                }
+            }
+        }
+        
+        // Check if user has permission to view movies (normal users)
+        $canViewMovies = false;
+        if ($user->hasPermission('view_movies')) {
+            $canViewMovies = true;
+        } else {
+            // Alternative check for users with role_id
+            if ($user->role_id) {
+                $role = $user->role()->first();
+                if ($role && $role->hasPermission('view_movies')) {
+                    $canViewMovies = true;
+                }
+            }
+        }
+        
+        // Apply filters based on user role
+        if ($canManageMovies) {
             // Admins and Casting Directors can see all movies
             // Apply genre filter if provided
             if ($genreFilter) {
@@ -84,9 +113,10 @@ class MovieController extends Controller
             if ($statusFilter) {
                 $query->where('status', $statusFilter);
             }
-        } elseif ($user->hasPermission('view_movies')) {
-            // Normal users can only see active movies
-            $query->where('status', 'active');
+        } elseif ($canViewMovies) {
+            // Normal users can only see active movies that haven't expired
+            $query->where('status', 'active')
+                  ->where('end_date', '>=', Carbon::today());
             
             // Apply genre filter if provided
             if ($genreFilter) {
@@ -158,7 +188,15 @@ class MovieController extends Controller
         
         // Only users with manage_movies permission can create movies
         if (!$user->hasPermission('manage_movies')) {
-            return $this->sendError('You are not authorized to create movies.', [], 403);
+            // Alternative check for users with role_id
+            if ($user->role_id) {
+                $role = $user->role()->first();
+                if (!$role || !$role->hasPermission('manage_movies')) {
+                    return $this->sendError('You are not authorized to create movies.', [], 403);
+                }
+            } else {
+                return $this->sendError('You are not authorized to create movies.', [], 403);
+            }
         }
         
         $validator = Validator::make($request->all(), [
@@ -239,14 +277,42 @@ class MovieController extends Controller
     {
         $user = Auth::user();
         
-        // Check permissions based on user role
+        // Check if user has permission to manage movies (admins and casting directors)
+        $canManageMovies = false;
         if ($user->hasPermission('manage_movies')) {
+            $canManageMovies = true;
+        } else {
+            // Alternative check for users with role_id
+            if ($user->role_id) {
+                $role = $user->role()->first();
+                if ($role && $role->hasPermission('manage_movies')) {
+                    $canManageMovies = true;
+                }
+            }
+        }
+        
+        // Check if user has permission to view movies (normal users)
+        $canViewMovies = false;
+        if ($user->hasPermission('view_movies')) {
+            $canViewMovies = true;
+        } else {
+            // Alternative check for users with role_id
+            if ($user->role_id) {
+                $role = $user->role()->first();
+                if ($role && $role->hasPermission('view_movies')) {
+                    $canViewMovies = true;
+                }
+            }
+        }
+        
+        // Check permissions based on user role
+        if ($canManageMovies) {
             // Admins and Casting Directors can see any movie
             // Load roles relationship
             $movie->load('roles');
-        } elseif ($user->hasPermission('view_movies')) {
-            // Normal users can only see active movies
-            if ($movie->status !== 'active') {
+        } elseif ($canViewMovies) {
+            // Normal users can only see active movies that haven't expired
+            if ($movie->status !== 'active' || $movie->end_date < Carbon::today()) {
                 return $this->sendError('Movie not found.', [], 404);
             }
             // Load roles relationship
@@ -324,7 +390,15 @@ class MovieController extends Controller
         
         // Only users with manage_movies permission can update movies
         if (!$user->hasPermission('manage_movies')) {
-            return $this->sendError('You are not authorized to update movies.', [], 403);
+            // Alternative check for users with role_id
+            if ($user->role_id) {
+                $role = $user->role()->first();
+                if (!$role || !$role->hasPermission('manage_movies')) {
+                    return $this->sendError('You are not authorized to update movies.', [], 403);
+                }
+            } else {
+                return $this->sendError('You are not authorized to update movies.', [], 403);
+            }
         }
         
         // Note: We're removing the Casting Director check since the Movie model doesn't have created_by field
@@ -426,7 +500,15 @@ class MovieController extends Controller
         
         // Only users with manage_movies permission can delete movies
         if (!$user->hasPermission('manage_movies')) {
-            return $this->sendError('You are not authorized to delete movies.', [], 403);
+            // Alternative check for users with role_id
+            if ($user->role_id) {
+                $role = $user->role()->first();
+                if (!$role || !$role->hasPermission('manage_movies')) {
+                    return $this->sendError('You are not authorized to delete movies.', [], 403);
+                }
+            } else {
+                return $this->sendError('You are not authorized to delete movies.', [], 403);
+            }
         }
         
         // Note: We're removing the Casting Director check since the Movie model doesn't have created_by field

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Audition;
 use App\Models\Movie;
+use Carbon\Carbon;
 
 class AuditionController extends Controller
 {
@@ -89,8 +90,10 @@ class AuditionController extends Controller
      */
     public function create()
     {
-        // Get all active movies for the dropdown
-        $movies = Movie::where('status', 'active')->get();
+        // Get all active movies that haven't expired for the dropdown
+        $movies = Movie::where('status', 'active')
+                      ->where('end_date', '>=', Carbon::today())
+                      ->get();
         
         return view('auditions.create', compact('movies'));
     }
@@ -135,6 +138,16 @@ class AuditionController extends Controller
         
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
+        }
+        
+        // Check if an audition already exists for the same user, movie, and role combination
+        $existingAudition = Audition::where('user_id', Auth::id())
+            ->where('movie_id', $request->movie_id)
+            ->where('role', $request->role)
+            ->first();
+            
+        if ($existingAudition) {
+            return redirect()->back()->with('error', 'You have already submitted an audition for this movie-role combination.')->withInput();
         }
 
         // Handle file upload

@@ -104,6 +104,11 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::get('profile', [App\Http\Controllers\API\Admin\SettingController::class, 'profile']);
     Route::put('profile', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfile']);
     Route::put('profile/password', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfilePassword']);
+    
+    // Notification routes
+    Route::post('notifications/device-token', [App\Http\Controllers\API\NotificationController::class, 'registerDeviceToken']);
+    Route::get('notifications', [App\Http\Controllers\API\NotificationController::class, 'getUserNotifications']);
+    Route::post('notifications/{id}/read', [App\Http\Controllers\API\NotificationController::class, 'markAsRead']);
 });
 
 // User Gallery routes (public access)

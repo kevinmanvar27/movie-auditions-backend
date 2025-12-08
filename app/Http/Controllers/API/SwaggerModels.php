@@ -121,6 +121,24 @@ namespace App\Http\Controllers\API;
 
 /**
  * @OA\Schema(
+ *     schema="Notification",
+ *     type="object",
+ *     title="Notification",
+ *     description="Notification model",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="title", type="string", example="New Movie Audition Available"),
+ *     @OA\Property(property="message", type="string", example="A new audition for the movie \"Inception\" is now available. Check it out!"),
+ *     @OA\Property(property="filters_applied", type="object", example={"target_roles": {2}, "gender": "female", "min_age": 18, "max_age": 35}),
+ *     @OA\Property(property="recipient_count", type="integer", example=42),
+ *     @OA\Property(property="status", type="string", enum={"pending", "sent", "failed"}, example="sent"),
+ *     @OA\Property(property="sent_at", type="string", format="date-time", example="2025-12-04T12:00:00Z"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-12-04T12:00:00Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-12-04T12:00:00Z")
+ * )
+ */
+
+/**
+ * @OA\Schema(
  *     schema="Error",
  *     type="object",
  *     title="Error Response",

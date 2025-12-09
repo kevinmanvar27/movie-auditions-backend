@@ -58,13 +58,13 @@ class MovieController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
         
         // Check if user has permission to view movies
         if (!$user->hasPermission('view_movies')) {
             // Alternative check for users with role_id
             if ($user->role_id) {
-                $role = $user->role()->first();
+                $role = $user->role;
                 if (!$role || !$role->hasPermission('view_movies')) {
                     return $this->sendError('You are not authorized to view movies.', [], 403);
                 }
@@ -78,7 +78,12 @@ class MovieController extends Controller
         $statusFilter = $request->input('status');
         
         // Build query with filters
-        $query = Movie::query();
+        // If user is admin, show all movies, otherwise show only movies created by the user
+        if ($user->hasRole('admin')) {
+            $query = Movie::query();
+        } else {
+            $query = $user->movies();
+        }
         
         // Apply genre filter if provided
         if ($genreFilter) {
@@ -134,21 +139,26 @@ class MovieController extends Controller
      *      )
      *     )
      */
-    public function show(Movie $movie)
+    public function show(Request $request, Movie $movie)
     {
-        $user = Auth::user();
+        $user = $request->user();
         
         // Check if user has permission to view movies
         if (!$user->hasPermission('view_movies')) {
             // Alternative check for users with role_id
             if ($user->role_id) {
-                $role = $user->role()->first();
+                $role = $user->role;
                 if (!$role || !$role->hasPermission('view_movies')) {
                     return $this->sendError('You are not authorized to view movies.', [], 403);
                 }
             } else {
                 return $this->sendError('You are not authorized to view movies.', [], 403);
             }
+        }
+        
+        // Check if the movie belongs to the user or if the user is admin
+        if (!$user->hasRole('admin') && $movie->user_id != $user->id) {
+            return $this->sendError('You are not authorized to view this movie.', [], 403);
         }
         
         // Load roles relationship

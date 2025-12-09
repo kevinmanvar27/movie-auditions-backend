@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Audition;
 
 class MovieController extends Controller
@@ -15,12 +16,20 @@ class MovieController extends Controller
      */
     public function index(Request $request)
     {
+        // Get the authenticated user
+        $user = Auth::user();
+        
+        // Build query with filters
+        // If user is admin, show all movies, otherwise show only movies created by the user
+        if ($user->hasRole('admin')) {
+            $query = \App\Models\Movie::query();
+        } else {
+            $query = $user->movies()->getQuery();
+        }
+        
         // Get filter values
         $genreFilter = $request->input('genre');
         $statusFilter = $request->input('status');
-        
-        // Build query with filters
-        $query = \App\Models\Movie::query();
         
         // Apply genre filter if provided
         if ($genreFilter) {
@@ -115,6 +124,7 @@ class MovieController extends Controller
                 'director' => $validated['director'],
                 'budget' => $validated['budget'] ?? null,
                 'status' => $validated['status'],
+                'user_id' => Auth::id(), // Associate movie with the authenticated user
             ];
             
             // Create the movie in the database

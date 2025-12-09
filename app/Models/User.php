@@ -131,4 +131,10 @@ class User extends Authenticatable
     {
         $this->notify(new \App\Notifications\ResetPasswordAPI($token));
     }
+    
+    // Add relationship with Movies
+    public function movies()
+    {
+        return $this->hasMany(Movie::class);
+    }
 }

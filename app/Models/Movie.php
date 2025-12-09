@@ -17,6 +17,7 @@ class Movie extends Model
         'director',
         'status',
         'budget',
+        'user_id',
     ];
     
     protected $casts = [
@@ -62,6 +63,12 @@ class Movie extends Model
     public function auditions()
     {
         return $this->hasMany(Audition::class);
+    }
+    
+    // Add relationship with User
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
     
 }

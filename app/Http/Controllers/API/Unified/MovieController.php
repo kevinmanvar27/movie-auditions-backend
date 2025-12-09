@@ -63,14 +63,14 @@ class MovieController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
         
         // Get filter values
         $genreFilter = $request->input('genre');
         $statusFilter = $request->input('status');
         
-        // Build query with filters
-        $query = Movie::with('roles');
+        // Check if user is Super Admin
+        $isSuperAdmin = $user->hasRole('Super Admin');
         
         // Check if user has permission to manage movies (admins and casting directors)
         $canManageMovies = false;
@@ -79,7 +79,7 @@ class MovieController extends Controller
         } else {
             // Alternative check for users with role_id
             if ($user->role_id) {
-                $role = $user->role()->first();
+                $role = $user->role;
                 if ($role && $role->hasPermission('manage_movies')) {
                     $canManageMovies = true;
                 }
@@ -93,16 +93,42 @@ class MovieController extends Controller
         } else {
             // Alternative check for users with role_id
             if ($user->role_id) {
-                $role = $user->role()->first();
+                $role = $user->role;
                 if ($role && $role->hasPermission('view_movies')) {
                     $canViewMovies = true;
                 }
             }
         }
         
+        // Build query with filters
+        // If user is Super Admin, show all movies
+        // If user is Casting Director or has manage_movies permission, show only their own movies
+        // Otherwise, show only movies created by the user (for directors/casting directors)
+        if ($isSuperAdmin) {
+            $query = Movie::with('roles');
+        } else if ($canManageMovies) {
+            // Show only movies created by the authenticated user (casting directors)
+            $query = $user->movies()->with('roles');
+        } else {
+            // Show only movies created by the authenticated user (regular users)
+            $query = $user->movies()->with('roles');
+        }
+        
         // Apply filters based on user role
-        if ($canManageMovies) {
-            // Admins and Casting Directors can see all movies
+        if ($isSuperAdmin) {
+            // Super Admins can see all movies
+            // Apply genre filter if provided
+            if ($genreFilter) {
+                // Since genre is stored as JSON, we need to decode it to check
+                $query->whereRaw("json_extract(genre, '$[*]') LIKE ?", ['%"' . $genreFilter . '"%']);
+            }
+            
+            // Apply status filter if provided
+            if ($statusFilter) {
+                $query->where('status', $statusFilter);
+            }
+        } else if ($canManageMovies) {
+            // Casting Directors can only see their own movies
             // Apply genre filter if provided
             if ($genreFilter) {
                 // Since genre is stored as JSON, we need to decode it to check
@@ -193,13 +219,13 @@ class MovieController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
         
         // Only users with manage_movies permission can create movies
         if (!$user->hasPermission('manage_movies')) {
             // Alternative check for users with role_id
             if ($user->role_id) {
-                $role = $user->role()->first();
+                $role = $user->role;
                 if (!$role || !$role->hasPermission('manage_movies')) {
                     return $this->sendError('You are not authorized to create movies.', [], 403);
                 }
@@ -237,7 +263,8 @@ class MovieController extends Controller
         $movie->budget = $request->budget;
         $movie->description = $request->description;
         $movie->status = $request->status;
-        // Note: We're not setting created_by since the Movie model doesn't have this field
+        // Set the user_id to the authenticated user
+        $movie->user_id = $user->id;
         
         if (!$movie->save()) {
             return $this->sendError('Error occurred while creating movie.');

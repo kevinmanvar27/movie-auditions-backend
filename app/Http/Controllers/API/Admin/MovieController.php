@@ -404,7 +404,10 @@ class MovieController extends Controller
                 $movie->roles()->delete();
             }
 
-            return $this->sendResponse($movie->fresh(), 'Movie updated successfully.');
+            // Load the roles relationship before sending the response
+            $movie->load('roles');
+
+            return $this->sendResponse($movie, 'Movie updated successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to update movie: ' . $e->getMessage());
             return $this->sendError('Failed to update movie. Please try again.');

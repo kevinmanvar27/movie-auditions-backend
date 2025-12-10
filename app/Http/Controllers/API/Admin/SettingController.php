@@ -206,15 +206,16 @@ class SettingController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
+            'mobile_number' => 'nullable|string|max:10',
+            'gender' => 'nullable|string|in:male,female,other',
+            'date_of_birth' => 'nullable|string',
         ]);
         
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors(), 422);
         }
 
-        $user->update($request->only(['name', 'email', 'phone', 'address']));
+        $user->update($request->only(['name', 'email', 'mobile_number', 'gender', 'date_of_birth']));
 
         return $this->sendResponse($user->fresh(), 'Profile updated successfully.');
     }

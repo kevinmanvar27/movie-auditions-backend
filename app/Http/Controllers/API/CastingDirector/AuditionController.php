@@ -6,6 +6,7 @@ use App\Http\Controllers\API\BaseAPIController as Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Models\Audition;
 use App\Models\Movie;
 

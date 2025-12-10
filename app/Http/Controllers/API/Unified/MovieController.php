@@ -378,6 +378,78 @@ class MovieController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *      path="/api/v1/movies/{id}/auditions",
+     *      operationId="getMovieAuditions",
+     *      tags={"Unified Movies"},
+     *      summary="Get auditions for a specific movie",
+     *      description="Returns all auditions for a specific movie - only for users with manage_movies permission",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Movie id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=true),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(ref="#/components/schemas/Audition")
+     *              ),
+     *              @OA\Property(property="message", type="string", example="Auditions retrieved successfully.")
+     *          )
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Movie not found"
+     *      )
+     *     )
+     */
+    public function auditions(Movie $movie)
+    {
+        $user = Auth::user();
+        
+        // Only users with manage_movies permission can view auditions for a movie
+        if (!$user->hasPermission('manage_movies')) {
+            // Alternative check for users with role_id
+            if ($user->role_id) {
+                $role = $user->role()->first();
+                if (!$role || !$role->hasPermission('manage_movies')) {
+                    return $this->sendError('You are not authorized to view auditions for this movie.', [], 403);
+                }
+            } else {
+                return $this->sendError('You are not authorized to view auditions for this movie.', [], 403);
+            }
+        }
+        
+        // Ensure the user can only see auditions for movies they created (unless Super Admin)
+        if ($movie->user_id !== $user->id && !$user->hasRole('Super Admin')) {
+            return $this->sendError('You are not authorized to view auditions for this movie.', [], 403);
+        }
+        
+        // Load auditions with user information
+        $auditions = $movie->auditions()->with('user')->get();
+        
+        return $this->sendResponse($auditions, 'Auditions retrieved successfully.');
+    }
+
+    /**
      * @OA\Put(
      *      path="/api/v1/movies/{id}",
      *      operationId="updateMovie",

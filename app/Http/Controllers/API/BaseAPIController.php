@@ -31,6 +31,39 @@ use Illuminate\Http\JsonResponse;
  *      scheme="bearer",
  *      bearerFormat="JWT"
  * )
+ * 
+ * @OA\Schema(
+ *      schema="Audition",
+ *      type="object",
+ *      required={"id", "user_id", "movie_id", "role", "applicant_name", "status"},
+ *      @OA\Property(property="id", type="integer", format="int64", example=1),
+ *      @OA\Property(property="user_id", type="integer", format="int64", example=1),
+ *      @OA\Property(property="movie_id", type="integer", format="int64", example=1),
+ *      @OA\Property(property="role", type="string", example="Lead Actor"),
+ *      @OA\Property(property="applicant_name", type="string", example="John Doe"),
+ *      @OA\Property(property="uploaded_videos", type="array", @OA\Items(type="string")),
+ *      @OA\Property(property="old_video_backups", type="array", @OA\Items(type="string")),
+ *      @OA\Property(property="notes", type="string", example="Experienced actor with 5 years in the industry"),
+ *      @OA\Property(property="status", type="string", example="pending"),
+ *      @OA\Property(property="created_at", type="string", format="date-time"),
+ *      @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ * 
+ * @OA\Schema(
+ *      schema="Movie",
+ *      type="object",
+ *      required={"id", "title", "director", "end_date", "genre", "status"},
+ *      @OA\Property(property="id", type="integer", format="int64", example=1),
+ *      @OA\Property(property="title", type="string", example="Inception"),
+ *      @OA\Property(property="description", type="string", example="A thief who steals corporate secrets..."),
+ *      @OA\Property(property="director", type="string", example="Christopher Nolan"),
+ *      @OA\Property(property="end_date", type="string", format="date", example="2025-12-31"),
+ *      @OA\Property(property="genre", type="array", @OA\Items(type="string")),
+ *      @OA\Property(property="budget", type="number", format="float", example=160000000.00),
+ *      @OA\Property(property="status", type="string", example="active"),
+ *      @OA\Property(property="created_at", type="string", format="date-time"),
+ *      @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
  */
 class BaseAPIController extends Controller
 {

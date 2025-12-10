@@ -86,6 +86,9 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
         'destroy' => 'api.movies.destroy',
     ]);
     
+    // Movie auditions route
+    Route::get('movies/{movie}/auditions', [App\Http\Controllers\API\Unified\MovieController::class, 'auditions'])->name('api.movies.auditions');
+    
     // Unified User routes
     Route::apiResource('users', App\Http\Controllers\API\Unified\UserController::class)->names([
         'index' => 'api.users.index',

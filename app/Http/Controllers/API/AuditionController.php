@@ -10,6 +10,9 @@ use App\Models\Audition;
 use App\Models\Movie;
 use App\Models\Role;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use function Illuminate\Support\Facades\asset;
 
 /**
  * @OA\Tag(
@@ -461,41 +464,54 @@ class AuditionController extends Controller
             return $this->sendError('Validation Error.', $validator->errors(), 422);
         }
         
-        // Handle video removal if requested
-        if ($request->has('remove_video_url')) {
-            $videoUrl = $request->input('remove_video_url');
-            
-            // Decode the current videos array
-            $currentVideos = json_decode($audition->uploaded_videos, true) ?? [];
-            $oldBackups = json_decode($audition->old_video_backups, true) ?? [];
-            
-            // Check if the video exists in the current videos
-            if (in_array($videoUrl, $currentVideos)) {
-                // Remove the video from current videos
-                $currentVideos = array_diff($currentVideos, [$videoUrl]);
+        DB::beginTransaction();
+        try {
+            // Handle video removal if requested
+            if ($request->has('remove_video_url')) {
+                $videoUrl = $request->input('remove_video_url');
                 
-                // Add the video URL to old backups
-                $oldBackups[] = $videoUrl;
+                // Decode the current videos array
+                $currentVideos = json_decode($audition->uploaded_videos, true) ?? [];
+                $oldBackups = json_decode($audition->old_video_backups, true) ?? [];
                 
-                // Update the audition
-                $audition->uploaded_videos = json_encode(array_values($currentVideos));
-                $audition->old_video_backups = json_encode(array_values($oldBackups));
+                // Find matching video using basename comparison for more reliable matching
+                $matchingIndex = null;
+                foreach ($currentVideos as $index => $url) {
+                    if (basename(parse_url($url, PHP_URL_PATH)) === basename(parse_url($videoUrl, PHP_URL_PATH))) {
+                        $matchingIndex = $index;
+                        break;
+                    }
+                }
+                
+                if ($matchingIndex !== null) {
+                    // Remove the video from current videos
+                    $removedVideo = $currentVideos[$matchingIndex];
+                    unset($currentVideos[$matchingIndex]);
+                    $currentVideos = array_values($currentVideos);
+                    
+                    // Add the video URL to old backups
+                    $oldBackups[] = $removedVideo;
+                    
+                    // Update the audition
+                    $audition->uploaded_videos = json_encode($currentVideos);
+                    $audition->old_video_backups = json_encode(array_values($oldBackups));
+                }
             }
-        }
-        
-        // Handle new video upload
-        if ($request->hasFile('new_videos')) {
-            $file = $request->file('new_videos');
-            if ($file && $file->isValid()) {
-                try {
+            
+            // Handle new video upload
+            if ($request->hasFile('new_videos')) {
+                $file = $request->file('new_videos');
+                if ($file && $file->isValid()) {
                     // Decode the current videos array
                     $currentVideos = json_decode($audition->uploaded_videos, true) ?? [];
                     
-                    // Move current video to backups if exists
+                    // Move current videos to backups if they exist
                     if (!empty($currentVideos)) {
                         $oldBackups = json_decode($audition->old_video_backups, true) ?? [];
                         $oldBackups = array_merge($oldBackups, $currentVideos);
                         $audition->old_video_backups = json_encode(array_values($oldBackups));
+                        
+                        // TODO: Implement actual file deletion for old videos to prevent orphaned files
                     }
                     
                     // Store the new file in the 'audition_videos' directory using the public disk
@@ -507,32 +523,40 @@ class AuditionController extends Controller
                     
                     // Update the audition videos
                     $audition->uploaded_videos = json_encode(array_values($currentVideos));
-                } catch (\Exception $e) {
-                    // Log the error
-                    Log::error('File upload error: ' . $e->getMessage());
-                    return $this->sendError('Failed to upload the file: ' . $e->getMessage(), [], 500);
                 }
             }
-        }
-        
-        // Update text fields if provided
-        if ($request->has('role')) {
-            $audition->role = $request->role;
-        }
-        
-        if ($request->has('applicant_name')) {
-            $audition->applicant_name = $request->applicant_name;
-        }
-        
-        if ($request->has('notes')) {
-            $audition->notes = $request->notes;
-        }
+            
+            // Update text fields if provided
+            $hasTextUpdates = false;
+            if ($request->has('role')) {
+                $audition->role = $request->role;
+                $hasTextUpdates = true;
+            }
+            
+            if ($request->has('applicant_name')) {
+                $audition->applicant_name = $request->applicant_name;
+                $hasTextUpdates = true;
+            }
+            
+            if ($request->has('notes')) {
+                $audition->notes = $request->notes;
+                $hasTextUpdates = true;
+            }
 
-        if (!$audition->save()) {
-            return $this->sendError('Error occurred while updating audition.');
+            // Only save if there are actual changes
+            if ($hasTextUpdates || $request->has('remove_video_url') || $request->hasFile('new_videos')) {
+                if (!$audition->save()) {
+                    throw new \Exception('Error occurred while updating audition.');
+                }
+            }
+            
+            DB::commit();
+            return $this->sendResponse($audition->fresh(), 'Audition updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Audition update error: ' . $e->getMessage());
+            return $this->sendError('Error occurred while updating audition: ' . $e->getMessage(), [], 500);
         }
-
-        return $this->sendResponse($audition->fresh(), 'Audition updated successfully.');
     }
 
     /**

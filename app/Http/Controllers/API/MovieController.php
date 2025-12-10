@@ -79,7 +79,7 @@ class MovieController extends Controller
         
         // Build query with filters
         // If user is admin, show all movies, otherwise show only movies created by the user
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole('Super Admin')) {
             $query = Movie::query();
         } else {
             $query = $user->movies();

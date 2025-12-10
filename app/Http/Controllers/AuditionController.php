@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Audition;
 use App\Models\Movie;
+use App\Models\User;
 use Carbon\Carbon;
 
 class AuditionController extends Controller
@@ -30,8 +31,17 @@ class AuditionController extends Controller
     {
         $user = Auth::user();
         
-        // Get user's auditions with movie information
-        $query = Audition::with('movie')->where('user_id', $user->id);
+        // Check if user is Super Admin
+        $isSuperAdmin = $user->hasRole('Super Admin');
+        
+        // Get auditions - all for Super Admin, user-specific for others
+        if ($isSuperAdmin) {
+            // Super Admin can see all auditions
+            $query = Audition::with('movie');
+        } else {
+            // Regular users can only see their own auditions
+            $query = Audition::with('movie')->where('user_id', $user->id);
+        }
         
         // Apply filters if provided
         if ($request->has('movie_title') && !empty($request->movie_title)) {
@@ -202,8 +212,11 @@ class AuditionController extends Controller
      */
     public function show(Audition $audition)
     {
-        // Ensure user can only view their own auditions
-        if ($audition->user_id !== Auth::id()) {
+        // Check if user is Super Admin
+        $isSuperAdmin = Auth::user()->hasRole('Super Admin');
+        
+        // Ensure user can only view their own auditions unless they are Super Admin
+        if (!$isSuperAdmin && $audition->user_id !== Auth::id()) {
             abort(403);
         }
         
@@ -234,8 +247,11 @@ class AuditionController extends Controller
      */
     public function removeVideo(Request $request, Audition $audition)
     {
-        // Ensure user can only modify their own auditions
-        if ($audition->user_id !== Auth::id()) {
+        // Check if user is Super Admin
+        $isSuperAdmin = Auth::user()->hasRole('Super Admin');
+        
+        // Ensure user can only modify their own auditions unless they are Super Admin
+        if (!$isSuperAdmin && $audition->user_id !== Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
         
@@ -273,8 +289,11 @@ class AuditionController extends Controller
      */
     public function uploadVideos(Request $request, Audition $audition)
     {
-        // Ensure user can only modify their own auditions
-        if ($audition->user_id !== Auth::id()) {
+        // Check if user is Super Admin
+        $isSuperAdmin = Auth::user()->hasRole('Super Admin');
+        
+        // Ensure user can only modify their own auditions unless they are Super Admin
+        if (!$isSuperAdmin && $audition->user_id !== Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
         

@@ -252,12 +252,43 @@ class AuditionController extends Controller
             return $this->sendError('Validation Error.', $validator->errors(), 422);
         }
 
+        // Handle file upload
+        $videoUrls = [];
+        $uploadError = null;
+        if ($request->hasFile('uploaded_videos')) {
+            $file = $request->file('uploaded_videos');
+            if ($file && $file->isValid()) {
+                try {
+                    // Store the file in the 'audition_videos' directory using the public disk
+                    $path = $file->store('audition_videos', 'public');
+                    // Generate the full URL for web access using the asset helper
+                    $videoUrl = asset('storage/' . $path);
+                    $videoUrls[] = $videoUrl;
+                } catch (\Exception $e) {
+                    // Log the error
+                    Log::error('File upload error: ' . $e->getMessage());
+                    // Set error message
+                    $uploadError = "Failed to upload the video file. Please try again.";
+                }
+            } else {
+                // Handle invalid file
+                if ($file) {
+                    $uploadError = "The video file is invalid or corrupted.";
+                }
+            }
+        }
+        
+        // If there was an upload error, return error response
+        if ($uploadError) {
+            return $this->sendError($uploadError);
+        }
+
         $audition = new Audition();
         $audition->user_id = Auth::id();
         $audition->movie_id = $request->movie_id;
         $audition->role = $request->role;
         $audition->applicant_name = $request->applicant_name;
-        $audition->uploaded_videos = json_encode([]); // Will be updated when file is processed
+        $audition->uploaded_videos = json_encode($videoUrls);
         $audition->old_video_backups = null;
         $audition->notes = $request->notes;
         $audition->status = 'pending';

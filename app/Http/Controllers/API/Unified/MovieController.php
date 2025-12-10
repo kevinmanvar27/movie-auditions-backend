@@ -501,7 +501,7 @@ class MovieController extends Controller
         }
         
         if ($request->has('genre')) {
-            $movie->genre = $request->genre;
+            $movie->genre = json_encode($request->genre);
         }
         
         if ($request->has('budget')) {
@@ -522,12 +522,13 @@ class MovieController extends Controller
         
         // Process roles if provided
         if ($request->has('roles') && is_array($request->roles)) {
+            $allExistingRoleIds = $movie->roles()->pluck('id')->toArray();
             $processedRoleIds = [];
             
             foreach ($request->roles as $roleData) {
-                // Check if role data is not empty (excluding id field)
+                // Check if role data is not empty (excluding id and deleted fields)
                 $filteredRoleData = array_filter($roleData, function($value, $key) {
-                    return $key !== 'id' && !is_null($value);
+                    return $key !== 'id' && $key !== 'deleted' && !is_null($value);
                 }, ARRAY_FILTER_USE_BOTH);
                 
                 if (!empty($filteredRoleData)) {
@@ -535,20 +536,37 @@ class MovieController extends Controller
                         // Update existing role
                         $processedRoleIds[] = $roleData['id'];
                         $role = \App\Models\MovieRole::findOrFail($roleData['id']);
-                        $role->update($roleData);
+                        
+                        // Check if role should be deleted
+                        if (isset($roleData['deleted']) && $roleData['deleted']) {
+                            $role->delete();
+                        } else {
+                            $role->update($roleData);
+                        }
                     } else {
                         // Create new role
                         $role = new \App\Models\MovieRole($roleData);
                         $movie->roles()->save($role);
                     }
                 } elseif (isset($roleData['id'])) {
-                    // If only id is present and no other data, mark for cleanup
+                    // If role data is empty but has an ID, mark for deletion
                     $processedRoleIds[] = $roleData['id'];
+                    $role = \App\Models\MovieRole::findOrFail($roleData['id']);
+                    $role->delete();
+                } elseif (isset($roleData['deleted']) && $roleData['deleted']) {
+                    // If it's a new role marked as deleted, we just ignore it
+                    // No action needed, it won't be created
                 }
             }
             
-            // Delete roles that were not included in the update
-            $movie->roles()->whereNotIn('id', $processedRoleIds)->delete();
+            // Delete roles that were not included in the request (soft delete)
+            $rolesToDelete = array_diff($allExistingRoleIds, $processedRoleIds);
+            if (!empty($rolesToDelete)) {
+                $movie->roles()->whereIn('id', $rolesToDelete)->delete();
+            }
+        } else {
+            // If no roles were provided, delete all existing roles
+            $movie->roles()->delete();
         }
         
         return $this->sendResponse($movie->fresh()->load('roles'), 'Movie updated successfully.');

@@ -130,6 +130,7 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     // Profile routes
     Route::get('profile', [App\Http\Controllers\API\Admin\SettingController::class, 'profile']);
     Route::put('profile', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfile']);
+    Route::post('profile/photo', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfilePhoto']);
     Route::put('profile/password', [App\Http\Controllers\API\Admin\SettingController::class, 'updateProfilePassword']);
     
     // Notification routes

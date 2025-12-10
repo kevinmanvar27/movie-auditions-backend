@@ -6,6 +6,9 @@ use App\Http\Controllers\API\BaseAPIController as Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SystemSetting;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Tag(
@@ -149,7 +152,7 @@ class SettingController extends Controller
      */
     public function profile()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $user->load('role');
         
         return $this->sendResponse($user, 'Profile retrieved successfully.');
@@ -198,7 +201,7 @@ class SettingController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -257,7 +260,7 @@ class SettingController extends Controller
      */
     public function updateProfilePassword(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|string|min:8',
@@ -269,7 +272,7 @@ class SettingController extends Controller
         }
 
         // Check if current password is correct
-        if (!\Hash::check($request->current_password, $user->password)) {
+        if (!Hash::check($request->current_password, $user->password)) {
             return $this->sendError('Current password is incorrect.', [], 422);
         }
 
@@ -278,5 +281,83 @@ class SettingController extends Controller
         ]);
 
         return $this->sendResponse([], 'Password updated successfully.');
+    }
+    
+    /**
+     * @OA\Post(
+     *      path="/api/v1/profile/photo",
+     *      operationId="updateProfilePhoto",
+     *      tags={"Admin Settings"},
+     *      summary="Update profile photo",
+     *      description="Updates the authenticated user's profile photo",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="photo",
+     *                      type="string",
+     *                      format="binary"
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=true),
+     *              @OA\Property(property="data", ref="#/components/schemas/User"),
+     *              @OA\Property(property="message", type="string", example="Profile photo updated successfully.")
+     *          )
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation Error"
+     *      )
+     *     )
+     */
+    public function updateProfilePhoto(Request $request)
+    {
+        $user = Auth::user();
+        
+        $validator = Validator::make($request->all(), [
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+        
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+        
+        // Handle profile photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old profile photo if exists
+            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+            
+            // Store new profile photo
+            $path = $request->file('photo')->store('profile_photos', 'public');
+            
+            // Update user profile photo
+            $user->profile_photo = $path;
+            $user->save();
+            
+            $user->load('role');
+            
+            return $this->sendResponse($user, 'Profile photo updated successfully.');
+        }
+        
+        return $this->sendError('No photo provided.', [], 400);
     }
 }

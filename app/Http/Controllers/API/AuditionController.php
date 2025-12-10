@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Audition;
 use App\Models\Movie;
 use App\Models\Role;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -414,16 +415,76 @@ class AuditionController extends Controller
             return $this->sendError('You are not authorized to update this audition.', [], 403);
         }
         
-        $validator = Validator::make($request->all(), [
+        // Prepare validation rules
+        $rules = [
             'role' => 'sometimes|string|max:255',
             'applicant_name' => 'sometimes|string|max:255',
-            'notes' => 'nullable|string'
-        ]);
+            'notes' => 'nullable|string',
+            'new_videos' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv,webm',
+            'remove_video_url' => 'nullable|string'
+        ];
+        
+        $validator = Validator::make($request->all(), $rules);
         
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors(), 422);
         }
         
+        // Handle video removal if requested
+        if ($request->has('remove_video_url')) {
+            $videoUrl = $request->input('remove_video_url');
+            
+            // Decode the current videos array
+            $currentVideos = json_decode($audition->uploaded_videos, true) ?? [];
+            $oldBackups = json_decode($audition->old_video_backups, true) ?? [];
+            
+            // Check if the video exists in the current videos
+            if (in_array($videoUrl, $currentVideos)) {
+                // Remove the video from current videos
+                $currentVideos = array_diff($currentVideos, [$videoUrl]);
+                
+                // Add the video URL to old backups
+                $oldBackups[] = $videoUrl;
+                
+                // Update the audition
+                $audition->uploaded_videos = json_encode(array_values($currentVideos));
+                $audition->old_video_backups = json_encode(array_values($oldBackups));
+            }
+        }
+        
+        // Handle new video upload
+        if ($request->hasFile('new_videos')) {
+            $file = $request->file('new_videos');
+            if ($file && $file->isValid()) {
+                try {
+                    // Decode the current videos array
+                    $currentVideos = json_decode($audition->uploaded_videos, true) ?? [];
+                    
+                    // Move current video to backups if exists
+                    if (!empty($currentVideos)) {
+                        $oldBackups = json_decode($audition->old_video_backups, true) ?? [];
+                        $oldBackups = array_merge($oldBackups, $currentVideos);
+                        $audition->old_video_backups = json_encode(array_values($oldBackups));
+                    }
+                    
+                    // Store the new file in the 'audition_videos' directory using the public disk
+                    $path = $file->store('audition_videos', 'public');
+                    // Generate the full URL for web access using the asset helper
+                    $videoUrl = asset('storage/' . $path);
+                    // Set as the current video
+                    $currentVideos = [$videoUrl];
+                    
+                    // Update the audition videos
+                    $audition->uploaded_videos = json_encode(array_values($currentVideos));
+                } catch (\Exception $e) {
+                    // Log the error
+                    Log::error('File upload error: ' . $e->getMessage());
+                    return $this->sendError('Failed to upload the file: ' . $e->getMessage(), [], 500);
+                }
+            }
+        }
+        
+        // Update text fields if provided
         if ($request->has('role')) {
             $audition->role = $request->role;
         }

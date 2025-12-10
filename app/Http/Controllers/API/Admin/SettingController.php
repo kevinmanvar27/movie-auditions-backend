@@ -208,15 +208,22 @@ class SettingController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
+            // Adding the missing fields from web version as requested
+            'mobile_number' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
         ]);
         
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors(), 422);
         }
 
-        $user->update($request->only(['name', 'email', 'phone', 'address']));
+        $user->update($request->only(['name', 'email', 'phone', 'address', 'mobile_number', 'date_of_birth', 'gender']));
+        
+        // Load the role relationship to match the profile method response
+        $user->load('role');
 
-        return $this->sendResponse($user->fresh(), 'Profile updated successfully.');
+        return $this->sendResponse($user, 'Profile updated successfully.');
     }
 
     /**
@@ -358,6 +365,9 @@ class SettingController extends Controller
             return $this->sendResponse($user, 'Profile photo updated successfully.');
         }
         
+        return $this->sendError('No photo provided.', [], 400);
+    }
+}       
         return $this->sendError('No photo provided.', [], 400);
     }
 }

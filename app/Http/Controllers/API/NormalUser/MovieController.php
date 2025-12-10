@@ -74,7 +74,7 @@ class MovieController extends Controller
         $statusFilter = $request->input('status');
         
         // Build query with filters
-        $query = Movie::query();
+        $query = Movie::with('roles');
         
         // Apply genre filter if provided
         if ($genreFilter) {

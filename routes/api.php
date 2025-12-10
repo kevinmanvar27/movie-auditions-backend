@@ -60,6 +60,14 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
         Route::get('/user', [App\Http\Controllers\API\AuthController::class, 'user'])->name('api.auth.user');
     });
     
+    // Payment routes for mobile apps
+    Route::prefix('payment')->group(function () {
+        Route::post('/audition/order', [App\Http\Controllers\API\PaymentController::class, 'createAuditionPaymentOrder'])->name('api.payment.audition.order');
+        Route::post('/movie/order', [App\Http\Controllers\API\PaymentController::class, 'createMoviePaymentOrder'])->name('api.payment.movie.order');
+        Route::post('/audition/verify', [App\Http\Controllers\API\PaymentController::class, 'verifyAuditionPaymentAndSubmit'])->name('api.payment.audition.verify');
+        Route::post('/movie/verify', [App\Http\Controllers\API\PaymentController::class, 'verifyMoviePaymentAndCreate'])->name('api.payment.movie.verify');
+    });
+    
     // Unified Audition routes
     Route::apiResource('auditions', App\Http\Controllers\API\AuditionController::class)->names([
         'index' => 'api.auditions.index',

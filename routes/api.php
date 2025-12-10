@@ -104,6 +104,22 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
         'destroy' => 'api.roles.destroy',
     ]);
     
+    // Normal User routes
+    Route::prefix('normal-user')->group(function () {
+        Route::apiResource('movies', App\Http\Controllers\API\NormalUser\MovieController::class)->names([
+            'index' => 'api.normal-user.movies.index',
+            'show' => 'api.normal-user.movies.show',
+        ]);
+        
+        Route::apiResource('auditions', App\Http\Controllers\API\NormalUser\AuditionController::class)->names([
+            'index' => 'api.normal-user.auditions.index',
+            'store' => 'api.normal-user.auditions.store',
+            'show' => 'api.normal-user.auditions.show',
+            'update' => 'api.normal-user.auditions.update',
+            'destroy' => 'api.normal-user.auditions.destroy',
+        ]);
+    });
+    
     // Settings routes
     Route::get('settings', [App\Http\Controllers\API\Admin\SettingController::class, 'index']);
     Route::put('settings', [App\Http\Controllers\API\Admin\SettingController::class, 'update']);

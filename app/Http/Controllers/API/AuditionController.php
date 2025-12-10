@@ -515,28 +515,21 @@ class AuditionController extends Controller
             }
         }
         
-        // Update text fields using mass assignment for better reliability
-        $updateData = [];
+        // Update text fields if provided
         if ($request->has('role')) {
-            $updateData['role'] = $request->role;
+            $audition->role = $request->role;
         }
         
         if ($request->has('applicant_name')) {
-            $updateData['applicant_name'] = $request->applicant_name;
+            $audition->applicant_name = $request->applicant_name;
         }
         
         if ($request->has('notes')) {
-            $updateData['notes'] = $request->notes;
+            $audition->notes = $request->notes;
         }
-        
-        // Only attempt to update if there's data to update
-        if (!empty($updateData) || $request->has('new_videos') || $request->has('remove_video_url')) {
-            if (!empty($updateData)) {
-                $audition->update($updateData);
-            } else {
-                // Save the audition if videos were updated
-                $audition->save();
-            }
+
+        if (!$audition->save()) {
+            return $this->sendError('Error occurred while updating audition.');
         }
 
         return $this->sendResponse($audition->fresh(), 'Audition updated successfully.');

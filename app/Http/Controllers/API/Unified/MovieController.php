@@ -425,21 +425,31 @@ class MovieController extends Controller
     {
         $user = Auth::user();
         
-        // Only users with manage_movies permission can view auditions for a movie
-        if (!$user->hasPermission('manage_movies')) {
+        // Check if user has permission to manage movies (admins and casting directors)
+        $canManageMovies = false;
+        if ($user->hasPermission('manage_movies')) {
+            $canManageMovies = true;
+        } else {
             // Alternative check for users with role_id
             if ($user->role_id) {
                 $role = $user->role()->first();
-                if (!$role || !$role->hasPermission('manage_movies')) {
-                    return $this->sendError('You are not authorized to view auditions for this movie.', [], 403);
+                if ($role && $role->hasPermission('manage_movies')) {
+                    $canManageMovies = true;
                 }
-            } else {
-                return $this->sendError('You are not authorized to view auditions for this movie.', [], 403);
             }
         }
         
+        // If user doesn't have permission to manage movies, deny access
+        if (!$canManageMovies) {
+            return $this->sendError('You are not authorized to view auditions for this movie.', [], 403);
+        }
+        
+        // Check if user is Super Admin or the creator of the movie
+        $isSuperAdmin = $user->hasRole('Super Admin');
+        $isMovieCreator = $movie->user_id === $user->id;
+        
         // Ensure the user can only see auditions for movies they created (unless Super Admin)
-        if ($movie->user_id !== $user->id && !$user->hasRole('Super Admin')) {
+        if (!$isSuperAdmin && !$isMovieCreator) {
             return $this->sendError('You are not authorized to view auditions for this movie.', [], 403);
         }
         

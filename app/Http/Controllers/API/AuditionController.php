@@ -604,4 +604,92 @@ class AuditionController extends Controller
         
         return $this->sendResponse([], 'Audition deleted successfully.');
     }
+
+    /**
+     * @OA\Patch(
+     *      path="/api/v1/auditions/{id}/status",
+     *      operationId="updateAuditionStatus",
+     *      tags={"Auditions"},
+     *      summary="Update audition status",
+     *      description="Updates the status of an audition. Only Admin, Casting Director, or Movie Owner can update status.",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Audition id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"status"},
+     *              @OA\Property(property="status", type="string", example="shortlisted", enum={"pending", "viewed", "shortlisted", "rejected"})
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=true),
+     *              @OA\Property(property="data", ref="#/components/schemas/Audition"),
+     *              @OA\Property(property="message", type="string", example="Audition status updated successfully.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden - User not authorized to update status"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Audition not found"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation Error - Invalid status value"
+     *      )
+     * )
+     */
+    public function updateStatus(Request $request, Audition $audition)
+    {
+        $user = Auth::user();
+        
+        // Load the movie relationship to check ownership
+        $audition->load('movie');
+        
+        // Check authorization - only movie owner, casting director, or admin can update status
+        $isMovieOwner = $audition->movie && $audition->movie->created_by === $user->id;
+        $isAdmin = $user->hasRole('Admin');
+        $isCastingDirector = $user->hasRole('Casting Director');
+        
+        if (!$isMovieOwner && !$isAdmin && !$isCastingDirector) {
+            return $this->sendError('You are not authorized to update this audition status.', [], 403);
+        }
+        
+        // Validate the status field
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|string|in:pending,viewed,shortlisted,rejected'
+        ]);
+        
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+        
+        // Update the status
+        $audition->status = $request->status;
+        
+        if (!$audition->save()) {
+            return $this->sendError('Error occurred while updating audition status.');
+        }
+        
+        // Return the updated audition with relationships
+        return $this->sendResponse(
+            $audition->fresh()->load(['user', 'movie']), 
+            'Audition status updated successfully.'
+        );
+    }
 }

@@ -77,6 +77,10 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
         'destroy' => 'api.auditions.destroy',
     ]);
     
+    // Update audition status endpoint (Admin/Casting Director/Movie Owner only)
+    Route::patch('auditions/{audition}/status', [App\Http\Controllers\API\AuditionController::class, 'updateStatus'])
+        ->name('api.auditions.update-status');
+
     // Unified Movie routes
     Route::apiResource('movies', App\Http\Controllers\API\Unified\MovieController::class)->names([
         'index' => 'api.movies.index',

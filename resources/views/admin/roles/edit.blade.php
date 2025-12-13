@@ -76,6 +76,14 @@
                                             <input type="checkbox" name="permissions[]" value="manage_settings" class="rounded border-theme-border text-theme-primary focus:ring-theme-primary" {{ in_array('manage_settings', $role->permissions ?? []) ? 'checked' : '' }}>
                                             <span class="ml-2 text-sm text-theme-text">Manage Settings</span>
                                         </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="permissions[]" value="manage_notifications" class="rounded border-theme-border text-theme-primary focus:ring-theme-primary" {{ in_array('manage_notifications', $role->permissions ?? []) ? 'checked' : '' }}>
+                                            <span class="ml-2 text-sm text-theme-text">Manage Notifications</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="permissions[]" value="manage_pages" class="rounded border-theme-border text-theme-primary focus:ring-theme-primary" {{ in_array('manage_pages', $role->permissions ?? []) ? 'checked' : '' }}>
+                                            <span class="ml-2 text-sm text-theme-text">Manage Pages</span>
+                                        </label>
                                     </div>
                                 </div>
                                 

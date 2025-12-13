@@ -25,6 +25,11 @@ Route::prefix('v1')->group(function () {
         ]); 
     })->name('api.health');
     
+    // Public Pages routes (no authentication required)
+    Route::get('/pages', [App\Http\Controllers\API\PageController::class, 'index'])->name('api.pages.index');
+    Route::get('/pages/menu', [App\Http\Controllers\API\PageController::class, 'menu'])->name('api.pages.menu');
+    Route::get('/pages/{slug}', [App\Http\Controllers\API\PageController::class, 'show'])->name('api.pages.show');
+    
     // Health check endpoint
     Route::get('/health-check', function () {
         return response()->json([

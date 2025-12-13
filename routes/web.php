@@ -110,8 +110,28 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/notifications/{id}', [App\Http\Controllers\Admin\NotificationController::class, 'show'])->name('admin.notifications.show');
     });
     
+    // Pages Routes - Require manage_pages permission (Super Admin only)
+    Route::middleware('permission:manage_pages')->group(function () {
+        Route::resource('pages', App\Http\Controllers\Admin\PageController::class)->names([
+            'index' => 'admin.pages.index',
+            'create' => 'admin.pages.create',
+            'store' => 'admin.pages.store',
+            'show' => 'admin.pages.show',
+            'edit' => 'admin.pages.edit',
+            'update' => 'admin.pages.update',
+            'destroy' => 'admin.pages.destroy',
+        ]);
+        Route::get('pages/{page}/preview', [App\Http\Controllers\Admin\PageController::class, 'preview'])->name('admin.pages.preview');
+    });
+    
     // Profile Routes - Available to all authenticated users
     Route::get('/profile', [App\Http\Controllers\Admin\SettingController::class, 'profile'])->name('admin.profile');
     Route::put('/profile', [App\Http\Controllers\Admin\SettingController::class, 'updateProfile'])->name('admin.profile.update');
     Route::put('/profile/password', [App\Http\Controllers\Admin\SettingController::class, 'updateProfilePassword'])->name('admin.profile.update-password');
 });
+
+// Public Pages Route - MUST be at the end to avoid catching other routes
+// This is a catch-all route for dynamic pages like /privacy-policy, /terms, etc.
+Route::get('/{slug}', [App\Http\Controllers\PageController::class, 'show'])
+    ->name('pages.show')
+    ->where('slug', '[a-z0-9\-]+');

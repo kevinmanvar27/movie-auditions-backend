@@ -46,6 +46,8 @@ class RoleController extends Controller
             'manage_auditions',
             'view_reports',
             'manage_settings',
+            'manage_notifications',
+            'manage_pages',
             'view_movies',
             'view_dashboard'
         ];
@@ -98,6 +100,8 @@ class RoleController extends Controller
             'manage_auditions',
             'view_reports',
             'manage_settings',
+            'manage_notifications',
+            'manage_pages',
             'view_movies',
             'view_dashboard'
         ];

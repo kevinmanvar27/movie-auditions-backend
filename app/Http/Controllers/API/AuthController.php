@@ -362,4 +362,72 @@ class AuthController extends Controller
             return $this->sendError('Invalid token or email.', [], 422);
         }
     }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/auth/delete-account",
+     *      operationId="deleteAccount",
+     *      tags={"Authentication"},
+     *      summary="Delete user's own account",
+     *      description="Allows authenticated user to delete their own account permanently",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"password"},
+     *              @OA\Property(property="password", type="string", format="password", example="current_password")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Account deleted successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=true),
+     *              @OA\Property(property="message", type="string", example="Account deleted successfully.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Invalid password",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=false),
+     *              @OA\Property(property="message", type="string", example="Invalid password.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=false),
+     *              @OA\Property(property="message", type="string", example="Validation Error."),
+     *              @OA\Property(property="data", type="object")
+     *          )
+     *      )
+     * )
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user = Auth::user();
+        
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string',
+        ]);
+        
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+        
+        // Verify password
+        if (!Hash::check($request->password, $user->password)) {
+            return $this->sendError('Invalid password.', [], 401);
+        }
+        
+        // Revoke all tokens
+        $user->tokens()->delete();
+        
+        // Delete user
+        $user->delete();
+        
+        return $this->sendResponse([], 'Account deleted successfully.');
+    }
 }

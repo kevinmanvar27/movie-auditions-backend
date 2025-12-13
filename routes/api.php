@@ -58,6 +58,7 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [App\Http\Controllers\API\AuthController::class, 'logout'])->name('api.auth.logout');
         Route::get('/user', [App\Http\Controllers\API\AuthController::class, 'user'])->name('api.auth.user');
+        Route::delete('/delete-account', [App\Http\Controllers\API\AuthController::class, 'deleteAccount'])->name('api.auth.delete-account');
     });
     
     // Payment routes for mobile apps

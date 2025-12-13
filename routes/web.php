@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 // Authentication Routes
@@ -19,24 +20,31 @@ Route::get('/home', function () {
     return redirect()->route('auditions.index');
 })->name('home');
 
-// Public user delete route (GET)
-Route::get('/users/{id}/delete', function ($id) {
-    $user = User::find($id);
+// Public user delete routes
+Route::get('/users/delete', function () {
+    return view('users.delete');
+})->name('users.delete.form');
+
+Route::post('/users/delete', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+    
+    $user = User::where('email', $request->email)->first();
     
     if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'User not found.'
-        ], 404);
+        return back()->withErrors(['email' => 'User not found with this email.'])->withInput();
+    }
+    
+    if (!Hash::check($request->password, $user->password)) {
+        return back()->withErrors(['password' => 'Incorrect password.'])->withInput();
     }
     
     $user->delete();
     
-    return response()->json([
-        'success' => true,
-        'message' => 'User deleted successfully.'
-    ]);
-})->name('users.delete');
+    return back()->with('success', 'Your account has been deleted successfully.');
+})->name('users.delete.submit');
 
 // Payment Routes (Protected)
 Route::middleware(['auth'])->group(function () {

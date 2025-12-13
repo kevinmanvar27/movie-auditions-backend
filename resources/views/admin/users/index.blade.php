@@ -58,7 +58,7 @@
                             <span class="status-badge status-inactive">Inactive</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $user->created_at->format('Y-m-d') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-theme-text">{{ $user->created_at?->format('Y-m-d') ?? 'N/A' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium table-actions">
                         <a href="{{ route('admin.users.show', $user->id) }}" class="btn-view mr-2">View</a>
                         <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-edit mr-2">Edit</a>

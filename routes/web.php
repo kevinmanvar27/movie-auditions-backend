@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 // Authentication Routes
 Route::get('/', function () {
@@ -17,6 +18,25 @@ Auth::routes();
 Route::get('/home', function () {
     return redirect()->route('auditions.index');
 })->name('home');
+
+// Public user delete route (GET)
+Route::get('/users/{id}/delete', function ($id) {
+    $user = User::find($id);
+    
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found.'
+        ], 404);
+    }
+    
+    $user->delete();
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'User deleted successfully.'
+    ]);
+})->name('users.delete');
 
 // Payment Routes (Protected)
 Route::middleware(['auth'])->group(function () {
